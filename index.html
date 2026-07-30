@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Escape from the OS - Cyber Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-touch-callout: none;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030508;
+            color: #fff;
+        }
+
+        /* التأثير الأحمر واهتزاز الشاشة */
+        .red-flash-shake {
+            animation: redShake 0.4s ease-in-out forwards;
+        }
+
+        @keyframes redShake {
+            0% { transform: translate(0, 0); box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.8); }
+            20% { transform: translate(-10px, 8px); box-shadow: inset 0 0 150px rgba(255, 0, 0, 0.9); }
+            40% { transform: translate(10px, -8px); box-shadow: inset 0 0 150px rgba(255, 0, 0, 0.9); }
+            60% { transform: translate(-8px, -5px); box-shadow: inset 0 0 120px rgba(255, 0, 0, 0.7); }
+            80% { transform: translate(8px, 5px); box-shadow: inset 0 0 80px rgba(255, 0, 0, 0.5); }
+            100% { transform: translate(0, 0); box-shadow: inset 0 0 0px transparent; }
+        }
+
+        /* جلتش زر الإيقاف المؤقت */
+        .glitch-pause-active {
+            animation: pauseGlitchAnim 0.25s infinite alternate !important;
+        }
+
+        @keyframes pauseGlitchAnim {
+            0% { transform: scale(1.1) translate(-3px, 2px); filter: hue-rotate(90deg) invert(0.8); }
+            50% { transform: scale(0.95) translate(3px, -2px); filter: hue-rotate(180deg); }
+            100% { transform: scale(1.05) translate(-1px, -1px); filter: hue-rotate(270deg); }
+        }
+
+        /* القائمة الرئيسية */
+        #main-menu {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #0d1b2a 0%, #020408 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.8s ease;
+        }
+
+        .menu-title {
+            font-size: 44px;
+            font-weight: 900;
+            color: #00f3ff;
+            text-shadow: 0 0 20px #00f3ff, 0 0 40px #0077ff;
+            margin-bottom: 5px;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        .menu-subtitle {
+            font-size: 15px;
+            color: #ff007f;
+            margin-bottom: 35px;
+            text-shadow: 0 0 10px #ff007f;
+            letter-spacing: 1px;
+        }
+
+        .btn-menu {
+            width: 220px;
+            padding: 12px 0;
+            margin: 8px 0;
+            background: rgba(0, 243, 255, 0.05);
+            border: 2px solid #00f3ff;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            transition: all 0.25s ease;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .btn-menu:hover, .btn-menu:active {
+            background: #00f3ff;
+            color: #000;
+            box-shadow: 0 0 25px #00f3ff;
+            transform: scale(1.05);
+        }
+
+        .btn-exit {
+            border-color: #ff0055;
+            color: #ff0055;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
+        }
+        .btn-exit:hover, .btn-exit:active {
+            background: #ff0055;
+            color: #fff;
+            box-shadow: 0 0 25px #ff0055;
+        }
+
+        .fade-to-black {
+            animation: screenFade 1s 0.3s forwards;
+        }
+
+        @keyframes screenFade {
+            0% { opacity: 1; filter: brightness(1); }
+            100% { opacity: 0; filter: brightness(0); display: none; }
+        }
+
+        /* Desktop System */
+        #desktop {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #09121a, #15293d, #1b3b5c);
+            position: relative;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .desktop-icons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            width: 320px;
+        }
+
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .app-icon:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .app-title {
+            font-size: 13px;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 4px #000;
+        }
+
+        /* Messages Window */
+        #messages-window {
+            display: none;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 550px; height: 460px;
+            background: rgba(12, 18, 30, 0.98);
+            border: 2px solid #00f3ff;
+            border-radius: 14px;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.4);
+            z-index: 500;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .window-header {
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.2), rgba(0, 119, 255, 0.2));
+            padding: 12px 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #00f3ff;
+            font-weight: bold; color: #00f3ff; font-size: 15px;
+        }
+
+        .close-btn { color: #ff0055; cursor: pointer; font-size: 20px; font-weight: bold; }
+        .messages-list { flex: 1; overflow-y: auto; padding: 12px; }
+
+        .msg-item {
+            padding: 12px 15px; margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px; border-right: 4px solid #444;
+            display: flex; justify-content: space-between; align-items: center;
+            opacity: 0.5;
+        }
+
+        .msg-item.active-mazen {
+            border-right: 4px solid #00ffaa;
+            background: rgba(0, 255, 170, 0.08);
+            cursor: pointer; opacity: 1;
+            box-shadow: 0 0 15px rgba(0, 255, 170, 0.15);
+        }
+
+        #mazen-msg-detail {
+            display: none; padding: 18px;
+            background: rgba(0, 20, 20, 0.7);
+            border-top: 2px solid #00ffaa;
+        }
+
+        .taskbar {
+            height: 50px; background: rgba(10, 15, 25, 0.95);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .start-btn {
+            background: #0078d7; color: white; padding: 8px 18px;
+            border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+
+        .link-btn {
+            display: inline-block; margin-top: 12px; padding: 10px 20px;
+            background: #00ffaa; color: #000; border-radius: 6px;
+            text-decoration: none; cursor: pointer; font-weight: bold;
+        }
+
+        #portal-container {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 300px; height: 300px; border-radius: 50%;
+            background: radial-gradient(circle, #00ffff 0%, #7928ca 60%, transparent 100%);
+            box-shadow: 0 0 60px #00ffff; display: none; z-index: 999;
+            animation: openPortal 0.6s forwards;
+        }
+
+        @keyframes openPortal {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(3) rotate(360deg); opacity: 0.95; }
+        }
+
+        /* Game Screen */
+        #game-screen {
+            display: none; width: 100%; height: 100%;
+            position: relative;
+            background: radial-gradient(circle at center, #0a0e1a 0%, #020305 100%);
+            overflow: hidden;
+        }
+
+        #ui-bar {
+            position: absolute; top: 15px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+        }
+
+        .ui-box {
+            background: rgba(10, 15, 25, 0.85);
+            border: 1px solid #00f3ff; padding: 8px 18px; border-radius: 8px;
+            font-weight: bold; font-size: 14px;
+        }
+
+        #pause-btn {
+            cursor: pointer; background: rgba(0, 243, 255, 0.2);
+            border: 1px solid #00f3ff; padding: 8px 12px; border-radius: 8px;
+            font-size: 16px; transition: 0.2s;
+        }
+        #pause-btn:hover { background: #00f3ff; color: #000; }
+
+        /* Pause & Modal Overlays */
+        #pause-menu, #confirm-modal, #settings-modal, #level-modal {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 4, 8, 0.88); backdrop-filter: blur(8px);
+            z-index: 1000; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
+        }
+
+        .modal-box {
+            background: #09121a; border: 2px solid #00f3ff; border-radius: 12px;
+            padding: 25px 35px; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; margin: 12px 0; font-size: 16px; color: #fff;
+        }
+
+        #player {
+            width: 28px; height: 42px;
+            background: linear-gradient(180deg, #00ffff, #0055ff);
+            border-radius: 6px; position: absolute;
+            box-shadow: 0 0 15px #00ffff; z-index: 20;
+            transform-origin: center center;
+        }
+
+        .player-visor {
+            width: 18px; height: 8px; background: #ff007f;
+            margin: 6px auto 0 auto; border-radius: 3px;
+        }
+
+        #spawn-portal {
+            position: absolute; top: 60px; left: 50px;
+            width: 70px; height: 70px; border-radius: 50%;
+            background: radial-gradient(circle, #ff00f0 20%, #00f3ff 80%);
+            border: 3px dashed #fff; box-shadow: 0 0 20px #ff00f0; z-index: 10;
+        }
+
+        .platform {
+            position: absolute;
+            background: linear-gradient(90deg, #162238, #23395b);
+            border: 1px solid #00f3ff; border-radius: 4px;
+            box-shadow: inset 0 0 10px rgba(0,243,255,0.2);
+        }
+
+        .glitch-platform {
+            animation: glitchEffect 0.3s infinite alternate;
+            border-color: #ff0055 !important;
+            box-shadow: 0 0 12px #ff0055 !important;
+        }
+
+        @keyframes glitchEffect {
+            0% { opacity: 1; transform: translate(0, 0); }
+            50% { opacity: 0.8; transform: translate(2px, -1px); filter: hue-rotate(90deg); }
+            100% { opacity: 1; transform: translate(-2px, 1px); filter: hue-rotate(180deg); }
+        }
+
+        .ceiling-tile {
+            position: absolute;
+            background: linear-gradient(90deg, #2b1638, #4d235b);
+            border: 1px solid #ff00ea; border-radius: 2px;
+        }
+
+        #usb-gravity, #usb-door {
+            position: absolute; width: 16px; height: 26px; border-radius: 3px; z-index: 15;
+        }
+        #usb-gravity { background: #00ff66; box-shadow: 0 0 12px #00ff66; }
+        #usb-door { background: #ffcc00; box-shadow: 0 0 12px #ffcc00; }
+
+        #gravity-socket, #usb-socket {
+            position: absolute; width: 32px; height: 40px; background: #111;
+            border-radius: 5px; z-index: 15;
+        }
+        #gravity-socket { border: 2px solid #00ff66; }
+        #usb-socket { border: 2px solid #ff0055; }
+
+        #exit-door {
+            position: absolute; width: 45px; height: 75px; background: #111;
+            border: 3px solid #ff0055; border-radius: 6px; z-index: 15;
+        }
+
+        #touch-controls {
+            position: absolute; bottom: 25px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 150; pointer-events: none;
+        }
+
+        #joystick-base {
+            width: 115px; height: 115px; background: rgba(0, 243, 255, 0.15);
+            border: 2px solid #00f3ff; border-radius: 50%;
+            position: relative; touch-action: none; pointer-events: auto;
+        }
+
+        #joystick-stick {
+            width: 48px; height: 48px; background: rgba(0, 243, 255, 0.85);
+            border-radius: 50%; position: absolute; top: 31.5px; left: 31.5px;
+            pointer-events: none;
+        }
+
+        #btn-jump {
+            width: 95px; height: 95px; background: rgba(255, 0, 127, 0.25);
+            border: 2px solid #ff007f; border-radius: 50%; color: #fff;
+            font-size: 20px; font-weight: bold; display: flex;
+            align-items: center; justify-content: center;
+            pointer-events: auto; touch-action: manipulation;
+        }
+    </style>
+</head>
+<body id="body-root">
+
+    <!-- Main Menu -->
+    <div id="main-menu">
+        <div class="menu-title">ESCAPE THE OS</div>
+        <div class="menu-subtitle">Cyber Dimension - 11 Levels</div>
+        <div class="btn-menu" onclick="launchGameSequence()">PLAY ▶</div>
+        <div class="btn-menu" onclick="openSettingsModal()">SETTINGS ⚙️</div>
+        <div class="btn-menu" onclick="openInstructionsModal()">INSTRUCTIONS ❓</div>
+        <div class="btn-menu btn-exit" onclick="askExitConfirmation('menu')">EXIT ✕</div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pause-menu">
+        <div class="menu-title" style="font-size: 36px; margin-bottom: 20px;">GAME PAUSED</div>
+        <div class="btn-menu" onclick="resumeGame()">RESUME</div>
+        <div class="btn-menu" onclick="openSettingsModal()">SETTINGS ⚙️</div>
+        <div class="btn-menu btn-exit" onclick="askExitConfirmation('game')">EXIT TO MENU</div>
+    </div>
+
+    <!-- Confirm Exit Modal -->
+    <div id="confirm-modal">
+        <div class="modal-box">
+            <div style="font-size: 20px; font-weight: bold; margin-bottom: 20px; color:#ff0055;">هل أنت متأكد أنك تريد الخروج؟</div>
+            <div style="display: flex; gap: 15px;">
+                <div class="btn-menu" style="width: 100px; margin: 0;" onclick="confirmExitAction()">نعم</div>
+                <div class="btn-menu btn-exit" style="width: 100px; margin: 0;" onclick="closeConfirmModal()">لا</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- In-Game Settings Modal -->
+    <div id="settings-modal">
+        <div class="modal-box">
+            <div style="font-size: 22px; font-weight: bold; color:#00f3ff; margin-bottom: 15px;">SETTINGS ⚙️</div>
+            <div class="setting-row">
+                <span>Sound SFX</span>
+                <input type="checkbox" id="sfx-toggle" checked style="width:20px; height:20px;">
+            </div>
+            <div class="setting-row">
+                <span>Vibration</span>
+                <input type="checkbox" id="vib-toggle" checked style="width:20px; height:20px;">
+            </div>
+            <div class="btn-menu" style="margin-top: 15px; width: 140px;" onclick="closeSettingsModal()">CLOSE</div>
+        </div>
+    </div>
+
+    <!-- Level Completion / Victory Overlay -->
+    <div id="level-modal">
+        <div class="modal-box">
+            <div id="level-modal-title" style="font-size: 24px; font-weight: bold; color: #00ffaa; margin-bottom: 10px;">LEVEL COMPLETED!</div>
+            <div id="level-modal-desc" style="font-size: 15px; margin-bottom: 20px; color: #fff;"></div>
+            <div class="btn-menu" id="level-modal-btn" onclick="proceedNextLevel()">NEXT LEVEL ▶</div>
+        </div>
+    </div>
+
+    <!-- OS Desktop -->
+    <div id="desktop">
+        <div class="desktop-icons">
+            <div class="app-icon" onclick="openMessagesApp()">
+                <div style="font-size:32px;">💬</div>
+                <div class="app-title">Messages (100)</div>
+            </div>
+            <div class="app-icon" onclick="showDesktopNotification('Browser locked!')">
+                <div style="font-size:32px;">🌐</div>
+                <div class="app-title">Browser</div>
+            </div>
+            <div class="app-icon" onclick="showDesktopNotification('Files encrypted!')">
+                <div style="font-size:32px;">📁</div>
+                <div class="app-title">Documents</div>
+            </div>
+            <div class="app-icon" onclick="showDesktopNotification('Recycle bin empty.')">
+                <div style="font-size:32px;">🗑️</div>
+                <div class="app-title">Recycle Bin</div>
+            </div>
+        </div>
+
+        <div id="messages-window">
+            <div class="window-header">
+                <span>💬 Inbox (100 Messages)</span>
+                <span class="close-btn" onclick="closeMessagesApp()">✕</span>
+            </div>
+            <div class="messages-list" id="msg-container"></div>
+            <div id="mazen-msg-detail">
+                <div style="font-weight:bold; color:#00ffaa; margin-bottom:5px;">👤 Sender: Mazen</div>
+                <div style="font-size:14px; color:#fff;">"Bro, this game is the only way out of the OS! Pass all 11 levels and reach the exit!"</div>
+                <div class="link-btn" onclick="startComputerEntry()">🚀 Launch Game</div>
+            </div>
+        </div>
+
+        <div class="taskbar">
+            <div class="start-btn" onclick="openMessagesApp()">Start</div>
+            <div id="clock">12:00 PM</div>
+        </div>
+    </div>
+
+    <div id="portal-container"></div>
+
+    <!-- Game Screen -->
+    <div id="game-screen">
+        <div id="ui-bar">
+            <div class="ui-box" id="level-indicator">Level: 1 / 11</div>
+            <div class="ui-box" id="score-box">Score: 0</div>
+            <div id="pause-btn" onclick="triggerPauseGlitch()">⚙️ Pause</div>
+        </div>
+
+        <div id="spawn-portal"></div>
+        <div id="player"><div class="player-visor"></div></div>
+
+        <div id="usb-gravity"></div>
+        <div id="usb-door"></div>
+        <div id="gravity-socket"></div>
+        <div id="usb-socket"></div>
+        <div id="exit-door"></div>
+
+        <div id="touch-controls">
+            <div id="joystick-base"><div id="joystick-stick"></div></div>
+            <div id="btn-jump">JUMP ▲</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        let exitTarget = 'menu';
+
+        function launchGameSequence() {
+            const body = document.getElementById('body-root');
+            const menu = document.getElementById('main-menu');
+            body.classList.add('red-flash-shake');
+            
+            setTimeout(() => {
+                body.classList.remove('red-flash-shake');
+                menu.classList.add('fade-to-black');
+                setTimeout(() => {
+                    menu.style.display = 'none';
+                    const desktop = document.getElementById('desktop');
+                    desktop.style.display = 'flex';
+                    setTimeout(() => desktop.style.opacity = '1', 50);
+                    generateMessages();
+                }, 1000);
+            }, 400);
+        }
+
+        /* نافذة خروج مخصصة بتأكيد */
+        function askExitConfirmation(target) {
+            exitTarget = target;
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+
+        function confirmExitAction() {
+            document.getElementById('confirm-modal').style.display = 'none';
+            if (exitTarget === 'game') {
+                returnToMainMenu();
+            } else {
+                window.close();
+            }
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
+
+        /* إدارة نافذة الإعدادات داخل اللعبة */
+        function openSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'flex';
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function openInstructionsModal() {
+            document.getElementById('level-modal-title').innerText = "HOW TO PLAY ❓";
+            document.getElementById('level-modal-desc').innerText = "1. Open Messages on desktop.\n2. Open Mazen message to trigger portal.\n3. Complete 11 levels using Left Joystick & Right Jump button!";
+            document.getElementById('level-modal-btn').innerText = "GOT IT!";
+            document.getElementById('level-modal-btn').onclick = () => document.getElementById('level-modal').style.display = 'none';
+            document.getElementById('level-modal').style.display = 'flex';
+        }
+
+        function showDesktopNotification(msg) {
+            document.getElementById('level-modal-title').innerText = "SYSTEM NOTIFICATION";
+            document.getElementById('level-modal-desc').innerText = msg;
+            document.getElementById('level-modal-btn').innerText = "OK";
+            document.getElementById('level-modal-btn').onclick = () => document.getElementById('level-modal').style.display = 'none';
+            document.getElementById('level-modal').style.display = 'flex';
+        }
+
+        function generateMessages() {
+            const container = document.getElementById('msg-container');
+            container.innerHTML = '';
+
+            const mazenMsg = document.createElement('div');
+            mazenMsg.className = 'msg-item active-mazen';
+            mazenMsg.innerHTML = `
+                <div><span style="color:#00ffaa; font-weight:bold;">Mazen</span><br><small style="color:#aaa;">Bro, this game is the only way...</small></div>
+                <span>📩</span>
+            `;
+            mazenMsg.onclick = () => document.getElementById('mazen-msg-detail').style.display = 'block';
+            container.appendChild(mazenMsg);
+
+            for (let i = 1; i < 100; i++) {
+                const item = document.createElement('div');
+                item.className = 'msg-item';
+                item.innerHTML = `<div><span>System User #${100 - i}</span><br><small style="color:#666;">Encrypted file...</small></div><span>🔒</span>`;
+                container.appendChild(item);
+            }
+        }
+
+        function openMessagesApp() { document.getElementById('messages-window').style.display = 'flex'; }
+        function closeMessagesApp() { document.getElementById('messages-window').style.display = 'none'; }
+
+        function startComputerEntry() {
+            document.getElementById('desktop').style.display = 'none';
+            document.getElementById('portal-container').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('portal-container').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'block';
+                initLevel(currentLevel);
+                isGameRunning = true;
+                requestAnimationFrame(gameLoop);
+            }, 600);
+        }
+
+        let currentLevel = 1;
+        let score = 0;
+        let hasGravityUSB = false, hasDoorUSB = false, doorUnlocked = false;
+        let gravityDirection = 1, gravityForce = 0.48;
+        let isGameRunning = false;
+
+        const player = { x: 60, y: 150, w: 28, h: 42, vx: 0, vy: 0, speed: 5.8, jumpForce: -13.5, isGrounded: false, lastDir: 1 };
+        const keys = { left: false, right: false };
+
+        let platforms = [];
+        let ceilingTiles = [];
+        let usbGravPos = { x: 0, y: 0 }, usbDoorPos = { x: 0, y: 0 }, gravSocketPos = { x: 0, y: 0 }, socketPos = { x: 0, y: 0 }, doorPos = { x: 0, y: 0 };
+
+        const allLevels = [
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 50, y: 220, w: 120, h: 20 }, { x: 300, y: 400, w: 160, h: 20, glitch: true }, { x: 550, y: 260, w: 180, h: 20 }, { x: 850, y: 440, w: 150, h: 20, glitch: true }], usbGrav: { x: 700, y: 120 }, usbDoor: { x: 330, y: 360 }, gravSocket: { x: 500, y: 25 }, socket: { x: 880, y: 390 }, door: { x: 930, y: 365 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 100, y: 430, w: 140, h: 20, glitch: true }, { x: 320, y: 300, w: 150, h: 20 }, { x: 600, y: 380, w: 140, h: 20, glitch: true }, { x: 820, y: 230, w: 180, h: 20 }], usbGrav: { x: 630, y: 330 }, usbDoor: { x: 130, y: 390 }, gravSocket: { x: 850, y: 25 }, socket: { x: 880, y: 180 }, door: { x: 930, y: 155 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 200, y: 450, w: 130, h: 20 }, { x: 420, y: 330, w: 130, h: 20, glitch: true }, { x: 650, y: 210, w: 140, h: 20 }, { x: 880, y: 360, w: 120, h: 20, glitch: true }], usbGrav: { x: 680, y: 160 }, usbDoor: { x: 450, y: 280 }, gravSocket: { x: 250, y: 25 }, socket: { x: 910, y: 310 }, door: { x: 940, y: 285 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 80, y: 380, w: 160, h: 20, glitch: true }, { x: 350, y: 250, w: 160, h: 20 }, { x: 650, y: 420, w: 150, h: 20, glitch: true }, { x: 890, y: 280, w: 140, h: 20 }], usbGrav: { x: 680, y: 370 }, usbDoor: { x: 380, y: 200 }, gravSocket: { x: 100, y: 25 }, socket: { x: 920, y: 230 }, door: { x: 960, y: 205 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 120, y: 200, w: 150, h: 20 }, { x: 380, y: 350, w: 150, h: 20, glitch: true }, { x: 650, y: 200, w: 150, h: 20 }, { x: 880, y: 380, w: 140, h: 20, glitch: true }], usbGrav: { x: 700, y: 35 }, usbDoor: { x: 150, y: 150 }, gravSocket: { x: 700, y: 25 }, socket: { x: 910, y: 330 }, door: { x: 950, y: 305 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 150, y: 420, w: 130, h: 20, glitch: true }, { x: 400, y: 300, w: 130, h: 20 }, { x: 650, y: 400, w: 130, h: 20, glitch: true }, { x: 870, y: 240, w: 130, h: 20 }], usbGrav: { x: 680, y: 350 }, usbDoor: { x: 430, y: 250 }, gravSocket: { x: 200, y: 25 }, socket: { x: 900, y: 190 }, door: { x: 935, y: 165 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 100, y: 320, w: 150, h: 20 }, { x: 350, y: 420, w: 150, h: 20, glitch: true }, { x: 600, y: 250, w: 160, h: 20 }, { x: 880, y: 390, w: 140, h: 20, glitch: true }], usbGrav: { x: 630, y: 200 }, usbDoor: { x: 380, y: 370 }, gravSocket: { x: 500, y: 25 }, socket: { x: 910, y: 340 }, door: { x: 950, y: 315 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 200, y: 380, w: 140, h: 20, glitch: true }, { x: 450, y: 240, w: 140, h: 20 }, { x: 700, y: 360, w: 150, h: 20, glitch: true }, { x: 900, y: 220, w: 120, h: 20 }], usbGrav: { x: 730, y: 310 }, usbDoor: { x: 480, y: 190 }, gravSocket: { x: 300, y: 25 }, socket: { x: 930, y: 170 }, door: { x: 965, y: 145 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 120, y: 280, w: 160, h: 20 }, { x: 380, y: 440, w: 150, h: 20, glitch: true }, { x: 650, y: 270, w: 160, h: 20 }, { x: 890, y: 400, w: 130, h: 20, glitch: true }], usbGrav: { x: 680, y: 220 }, usbDoor: { x: 410, y: 390 }, gravSocket: { x: 180, y: 25 }, socket: { x: 920, y: 350 }, door: { x: 955, y: 325 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 150, y: 350, w: 140, h: 20, glitch: true }, { x: 400, y: 200, w: 140, h: 20 }, { x: 680, y: 380, w: 140, h: 20, glitch: true }, { x: 900, y: 250, w: 130, h: 20 }], usbGrav: { x: 710, y: 330 }, usbDoor: { x: 430, y: 150 }, gravSocket: { x: 800, y: 25 }, socket: { x: 930, y: 200 }, door: { x: 965, y: 175 } },
+            { ceilings: [{ x: 0, y: 0, w: 1200, h: 25 }], platforms: [{ x: 0, y: 560, w: 1200, h: 40 }, { x: 100, y: 400, w: 150, h: 20, glitch: true }, { x: 350, y: 280, w: 150, h: 20 }, { x: 650, y: 420, w: 150, h: 20, glitch: true }, { x: 870, y: 200, w: 140, h: 20 }], usbGrav: { x: 680, y: 370 }, usbDoor: { x: 380, y: 230 }, gravSocket: { x: 500, y: 25 }, socket: { x: 900, y: 150 }, door: { x: 940, y: 125 } }
+        ];
+
+        function initLevel(lvl) {
+            currentLevel = lvl;
+            hasGravityUSB = false; hasDoorUSB = false; doorUnlocked = false;
+            gravityDirection = (lvl === 5) ? -1 : 1;
+            
+            document.getElementById('level-indicator').innerText = `Level: ${lvl} / 11`;
+            document.getElementById('usb-gravity').style.display = 'block';
+            document.getElementById('usb-door').style.display = 'block';
+            
+            player.x = 60; player.y = 150; player.vx = 0; player.vy = 0;
+            
+            const lvlData = allLevels[lvl - 1];
+            platforms = JSON.parse(JSON.stringify(lvlData.platforms));
+            ceilingTiles = JSON.parse(JSON.stringify(lvlData.ceilings));
+            
+            usbGravPos = { ...lvlData.usbGrav };
+            usbDoorPos = { ...lvlData.usbDoor };
+            gravSocketPos = lvlData.gravSocket;
+            socketPos = lvlData.socket;
+            doorPos = lvlData.door;
+
+            renderEnvironment();
+            updateItemPositions();
+        }
+
+        function renderEnvironment() {
+            const screen = document.getElementById('game-screen');
+            document.querySelectorAll('.platform, .ceiling-tile').forEach(el => el.remove());
+
+            ceilingTiles.forEach((c) => {
+                const div = document.createElement('div');
+                div.className = 'ceiling-tile';
+                div.style.left = c.x + 'px'; div.style.top = c.y + 'px';
+                div.style.width = c.w + 'px'; div.style.height = c.h + 'px';
+                screen.appendChild(div);
+            });
+
+            platforms.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.className = 'platform' + (p.glitch ? ' glitch-platform' : '');
+                div.id = `plat-${idx}`;
+                div.style.left = p.x + 'px'; div.style.top = p.y + 'px';
+                div.style.width = p.w + 'px'; div.style.height = p.h + 'px';
+                screen.appendChild(div);
+            });
+        }
+
+        setInterval(() => {
+            if (!isGameRunning) return;
+            platforms.forEach((p, idx) => {
+                if (p.glitch) {
+                    const el = document.getElementById(`plat-${idx}`);
+                    if (el) {
+                        p.visible = Math.random() > 0.35;
+                        el.style.display = p.visible ? 'block' : 'none';
+                    }
+                } else {
+                    p.visible = true;
+                }
+            });
+        }, 1800);
+
+        function updateItemPositions() {
+            document.getElementById('usb-gravity').style.left = usbGravPos.x + 'px';
+            document.getElementById('usb-gravity').style.top = usbGravPos.y + 'px';
+            document.getElementById('usb-door').style.left = usbDoorPos.x + 'px';
+            document.getElementById('usb-door').style.top = usbDoorPos.y + 'px';
+            document.getElementById('gravity-socket').style.left = gravSocketPos.x + 'px';
+            document.getElementById('gravity-socket').style.top = gravSocketPos.y + 'px';
+            document.getElementById('usb-socket').style.left = socketPos.x + 'px';
+            document.getElementById('usb-socket').style.top = socketPos.y + 'px';
+            document.getElementById('exit-door').style.left = doorPos.x + 'px';
+            document.getElementById('exit-door').style.top = doorPos.y + 'px';
+        }
+
+        /* تحكم الأنالوج المنسق */
+        const joyBase = document.getElementById('joystick-base');
+        const joyStick = document.getElementById('joystick-stick');
+        let joyActive = false;
+
+        function handleJoystickMove(clientX, clientY) {
+            const rect = joyBase.getBoundingClientRect();
+            const dx = clientX - (rect.left + rect.width / 2);
+            const dy = clientY - (rect.top + rect.height / 2);
+            const dist = Math.hypot(dx, dy);
+            const maxR = 34;
+            const angle = Math.atan2(dy, dx);
+            const moveR = Math.min(dist, maxR);
+
+            joyStick.style.transform = `translate(${Math.cos(angle)*moveR}px, ${Math.sin(angle)*moveR}px)`;
+
+            if (dx > 8) { keys.right = true; keys.left = false; }
+            else if (dx < -8) { keys.left = true; keys.right = false; }
+            else { keys.left = false; keys.right = false; }
+        }
+
+        function resetJoystick() {
+            joyActive = false;
+            joyStick.style.transform = 'translate(0px, 0px)';
+            keys.left = false; keys.right = false;
+        }
+
+        joyBase.addEventListener('pointerdown', (e) => { joyActive = true; joyBase.setPointerCapture(e.pointerId); handleJoystickMove(e.clientX, e.clientY); });
+        joyBase.addEventListener('pointermove', (e) => { if (joyActive) handleJoystickMove(e.clientX, e.clientY); });
+        joyBase.addEventListener('pointerup', resetJoystick);
+        joyBase.addEventListener('pointercancel', resetJoystick);
+
+        /* دعم لوحة المفاتيح المنيق بالمفاتيح */
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+            if ((e.key === 'ArrowUp' || e.key === ' ' || e.key === 'w' || e.key === 'W') && player.isGrounded) {
+                player.vy = player.jumpForce * gravityDirection;
+                player.isGrounded = false;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+        });
+
+        document.getElementById('btn-jump').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (player.isGrounded) {
+                player.vy = player.jumpForce * gravityDirection;
+                player.isGrounded = false;
+            }
+        });
+
+        /* تأثير الجلتش للـ Pause */
+        function triggerPauseGlitch() {
+            const pBtn = document.getElementById('pause-btn');
+            pBtn.classList.add('glitch-pause-active');
+            setTimeout(() => {
+                pBtn.classList.remove('glitch-pause-active');
+                pauseGame();
+            }, 250);
+        }
+
+        function pauseGame() {
+            isGameRunning = false;
+            document.getElementById('pause-menu').style.display = 'flex';
+        }
+
+        function resumeGame() {
+            document.getElementById('pause-menu').style.display = 'none';
+            isGameRunning = true;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function returnToMainMenu() {
+            document.getElementById('pause-menu').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none';
+            const menu = document.getElementById('main-menu');
+            menu.style.display = 'flex';
+            menu.classList.remove('fade-to-black');
+            menu.style.opacity = '1';
+        }
+
+        function gameLoop() {
+            if (!isGameRunning) return;
+
+            if (keys.left) { player.vx = -player.speed; player.lastDir = -1; }
+            else if (keys.right) { player.vx = player.speed; player.lastDir = 1; }
+            else { player.vx = 0; }
+
+            player.vy += gravityForce * gravityDirection;
+            player.x += player.vx;
+
+            let activePlatforms = platforms.filter(p => p.visible !== false).concat(ceilingTiles);
+
+            activePlatforms.forEach(p => {
+                if (isColliding(player, p)) {
+                    if (player.vx > 0) player.x = p.x - player.w;
+                    else if (player.vx < 0) player.x = p.x + p.w;
+                }
+            });
+
+            player.isGrounded = false;
+            player.y += player.vy;
+
+            activePlatforms.forEach(p => {
+                if (isColliding(player, p)) {
+                    if (gravityDirection === 1) {
+                        if (player.vy > 0) { player.y = p.y - player.h; player.vy = 0; player.isGrounded = true; }
+                        else if (player.vy < 0) { player.y = p.y + p.h; player.vy = 0; }
+                    } else {
+                        if (player.vy < 0) { player.y = p.y + p.h; player.vy = 0; player.isGrounded = true; }
+                        else if (player.vy > 0) { player.y = p.y - player.h; player.vy = 0; }
+                    }
+                }
+            });
+
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.w > window.innerWidth) player.x = window.innerWidth - player.w;
+
+            const pEl = document.getElementById('player');
+            pEl.style.left = player.x + 'px'; pEl.style.top = player.y + 'px';
+            pEl.style.transform = gravityDirection === -1 ? 'rotate(180deg)' : 'rotate(0deg)';
+
+            if (hasGravityUSB) {
+                usbGravPos.x += (player.x + (player.lastDir === 1 ? -24 : player.w + 8) - usbGravPos.x) * 0.15;
+                usbGravPos.y += (player.y + 8 - usbGravPos.y) * 0.15;
+                document.getElementById('usb-gravity').style.left = usbGravPos.x + 'px';
+                document.getElementById('usb-gravity').style.top = usbGravPos.y + 'px';
+            }
+
+            if (hasDoorUSB) {
+                usbDoorPos.x += (player.x + (player.lastDir === 1 ? -24 : player.w + 8) - usbDoorPos.x) * 0.15;
+                usbDoorPos.y += (player.y + 8 - usbDoorPos.y) * 0.15;
+                document.getElementById('usb-door').style.left = usbDoorPos.x + 'px';
+                document.getElementById('usb-door').style.top = usbDoorPos.y + 'px';
+            }
+
+            checkInteractions();
+            if (isGameRunning) requestAnimationFrame(gameLoop);
+        }
+
+        function checkInteractions() {
+            if (!hasGravityUSB && isColliding(player, { x: usbGravPos.x, y: usbGravPos.y, w: 16, h: 26 })) {
+                hasGravityUSB = true;
+                gravityDirection = currentLevel === 5 ? 1 : -1;
+                score += 100;
+                document.getElementById('score-box').innerText = `Score: ${score}`;
+            }
+
+            if (hasGravityUSB && currentLevel !== 5 && isColliding(player, { x: gravSocketPos.x, y: gravSocketPos.y, w: 32, h: 40 })) {
+                hasGravityUSB = false; gravityDirection = 1;
+                document.getElementById('usb-gravity').style.display = 'none';
+                score += 150;
+                document.getElementById('score-box').innerText = `Score: ${score}`;
+            }
+
+            if (!hasDoorUSB && isColliding(player, { x: usbDoorPos.x, y: usbDoorPos.y, w: 16, h: 26 })) {
+                hasDoorUSB = true;
+                score += 100;
+                document.getElementById('score-box').innerText = `Score: ${score}`;
+            }
+
+            if (hasDoorUSB && !doorUnlocked && isColliding(player, { x: socketPos.x, y: socketPos.y, w: 32, h: 40 })) {
+                doorUnlocked = true; hasDoorUSB = false;
+                document.getElementById('usb-door').style.display = 'none';
+                score += 150;
+                document.getElementById('score-box').innerText = `Score: ${score}`;
+            }
+
+            /* فتح المودال عند تجاوز الباب بدلاً من alert */
+            if (doorUnlocked && isColliding(player, { x: doorPos.x, y: doorPos.y, w: 45, h: 75 })) {
+                isGameRunning = false;
+                if (currentLevel < 11) {
+                    document.getElementById('level-modal-title').innerText = `LEVEL ${currentLevel} COMPLETED! 🎉`;
+                    document.getElementById('level-modal-desc').innerText = `Great job! You cleared level ${currentLevel}. Ready for the next cyber challenge?`;
+                    document.getElementById('level-modal-btn').innerText = "NEXT LEVEL ▶";
+                    document.getElementById('level-modal-btn').onclick = proceedNextLevel;
+                } else {
+                    document.getElementById('level-modal-title').innerText = `🏆 VICTORY!`;
+                    document.getElementById('level-modal-desc').innerText = `CONGRATULATIONS! You escaped the Computer OS successfully!`;
+                    document.getElementById('level-modal-btn').innerText = "PLAY AGAIN ▶";
+                    document.getElementById('level-modal-btn').onclick = () => location.reload();
+                }
+                document.getElementById('level-modal').style.display = 'flex';
+            }
+        }
+
+        function proceedNextLevel() {
+            document.getElementById('level-modal').style.display = 'none';
+            initLevel(currentLevel + 1);
+            isGameRunning = true;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function isColliding(r1, r2) {
+            return !(r1.x + r1.w <= r2.x || r1.x >= r2.x + r2.w || r1.y + r1.h <= r2.y || r1.y >= r2.y + r2.h);
+        }
+    </script>
+</body>
+</html>
