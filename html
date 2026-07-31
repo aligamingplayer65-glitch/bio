@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soko_play - المتجر</title>
+    <!-- استيراد خطوط جوجل تشبه خطوط ستيم -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- استيراد أيقونات Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- استيراد FontAwesome للأجهزة وأنظمة التشغيل -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- المتغيرات العامة وتصميم ستيم --- */
+        :root {
+            --steam-bg-main: #1b2838;
+            --steam-bg-sections: linear-gradient(135deg, #2a475e 0%, #1b2838 100%);
+            --steam-blue: #66c0f4;
+            --steam-font-color: #c7d5e0;
+            --steam-header-bg: #171a21;
+            --text-highlight: #ffffff;
+            --steam-green: #5c7e10;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #1b2838 0%, #0e141b 100%);
+            color: var(--steam-font-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- الشريط العلوي (Header) --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 50px;
+            background-color: var(--steam-header-bg);
+            border-bottom: 2px solid var(--steam-blue);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 70px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-area img {
+            width: 40px;
+            height: 40px;
+            filter: invert(1); 
+        }
+
+        .logo-area span {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-highlight);
+            letter-spacing: 1px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .header-link {
+            text-decoration: none;
+            color: var(--steam-font-color);
+            font-weight: 500;
+            font-size: 14px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .header-link:hover, .header-link.active {
+            color: var(--text-highlight);
+        }
+
+        /* --- شريط البحث --- */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #316282;
+            border-radius: 2px;
+            padding: 2px 10px;
+            height: 30px;
+            width: 250px;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            padding-right: 5px;
+            font-size: 13px;
+            color: white;
+        }
+
+        .search-bar i {
+            font-size: 16px;
+            color: var(--steam-blue);
+            cursor: pointer;
+        }
+
+        /* --- منطقة المستخدم --- */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #364656;
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background-color: #ccc;
+            border-radius: 50%;
+        }
+        .user-name {
+            font-size: 13px;
+            color: var(--text-highlight);
+        }
+
+        /* --- الحاوية الرئيسية --- */
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* --- القائمة الجانبية --- */
+        sidebar {
+            width: 200px;
+            padding-top: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #5c7e99;
+            margin-bottom: 10px;
+            padding-right: 10px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            font-size: 14px;
+            color: var(--steam-font-color);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background-color: rgba(102, 192, 244, 0.1);
+            color: var(--text-highlight);
+            transform: translateX(-4px);
+        }
+
+        .sidebar-item.active {
+            background-color: rgba(102, 192, 244, 0.15);
+            color: var(--text-highlight);
+        }
+
+        .sidebar-item i {
+            font-size: 18px;
+        }
+
+        /* --- المحتوى الرئيسي --- */
+        .content {
+            flex: 1;
+            padding-right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .box-container {
+            background: rgba(42, 71, 94, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 192, 244, 0.2);
+            padding: 25px 35px;
+            text-align: center;
+            border-radius: 8px;
+            color: var(--text-highlight);
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            animation: fadeIn 0.8s ease-in-out;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(102, 192, 244, 0.1);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(102, 192, 244, 0.2);
+        }
+
+        .box-container i.main-icon {
+            font-size: 35px;
+            color: var(--steam-blue);
+        }
+
+        .box-container h2 {
+            font-size: 20px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .box-container p {
+            font-size: 11px;
+            color: var(--steam-font-color);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .form-group {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--steam-blue);
+            margin-bottom: 3px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            border-radius: 4px;
+            padding: 6px 10px;
+            color: white;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(102,192,244,0.2);
+        }
+
+        .platform-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-highlight);
+            cursor: pointer;
+        }
+
+        .platform-checkbox input {
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        .platform-file-container {
+            display: none;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px dashed rgba(102, 192, 244, 0.3);
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        .platform-file-container.active {
+            display: block;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(102, 192, 244, 0.5);
+            border-radius: 6px;
+            padding: 12px 10px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 4px;
+        }
+
+        .drop-zone.dragover {
+            background: rgba(102, 192, 244, 0.15);
+            border-color: var(--steam-blue);
+        }
+
+        .drop-zone i {
+            font-size: 22px;
+            color: var(--steam-blue);
+            margin-bottom: 3px;
+        }
+
+        .drop-zone p {
+            margin: 0;
+            font-size: 11px;
+            color: var(--steam-font-color);
+        }
+
+        .file-name-display {
+            font-size: 10px;
+            color: #66c0f4;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        .retry-btn {
+            background: linear-gradient(to bottom, #66c0f4 0%, #357ac9 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(53, 122, 201, 0.4);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .retry-btn:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 6px 20px rgba(102, 192, 244, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 11px;
+            margin-bottom: 6px;
+            text-align: right;
+            display: none;
+        }
+
+        /* --- شبكة الألعاب في المتجر --- */
+        #storeGamesGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .game-store-card {
+            background: rgba(42, 71, 94, 0.6);
+            border: 1px solid rgba(102, 192, 244, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .game-store-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 192, 244, 0.2);
+            border-color: var(--steam-blue);
+        }
+
+        .game-store-img {
+            width: 100%;
+            height: 140px;
+            background-color: #171a21;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5c7e99;
+        }
+
+        .game-store-info {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .game-card-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .game-store-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background-color: #171a21;
+            object-fit: cover;
+            border: 1px solid var(--steam-blue);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5c7e99;
+            font-size: 16px;
+        }
+
+        .game-store-details {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            text-align: right;
+        }
+
+        .game-store-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-highlight);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .game-platforms-icons {
+            display: flex;
+            gap: 5px;
+            color: var(--steam-blue);
+            font-size: 11px;
+        }
+
+        .game-store-price {
+            font-size: 11px;
+            color: var(--steam-blue);
+            white-space: nowrap;
+        }
+
+        /* --- صفحة تفاصيل اللعبة --- */
+        #gameDetailView {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .game-detail-hero {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1px solid rgba(102, 192, 244, 0.3);
+        }
+
+        .game-detail-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            filter: brightness(0.5);
+        }
+
+        .game-detail-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(27,40,56,0.95) 100%);
+            z-index: 2;
+        }
+
+        .game-detail-content {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            text-align: right;
+        }
+
+        .game-detail-left-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .game-detail-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            border: 2px solid var(--steam-blue);
+            object-fit: cover;
+            background-color: #171a21;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5c7e99;
+            font-size: 30px;
+        }
+
+        .game-detail-info h1 {
+            font-size: 26px;
+            color: var(--text-highlight);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .game-detail-info p {
+            font-size: 13px;
+            color: var(--steam-font-color);
+            line-height: 1.4;
+            max-width: 500px;
+            margin-bottom: 8px;
+        }
+
+        .game-detail-platforms {
+            display: flex;
+            gap: 10px;
+            color: var(--steam-blue);
+            font-size: 14px;
+        }
+
+        .action-buttons-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .download-action-btn {
+            background: linear-gradient(to bottom, #75b124 0%, #588a1b 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(88, 138, 27, 0.4);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-action-btn:hover {
+            filter: brightness(1.15);
+            transform: translateY(-2px);
+        }
+
+        .download-action-btn.installed {
+            background: linear-gradient(to bottom, #4e5d6c 0%, #2a3f5a 100%);
+            cursor: default;
+        }
+
+        /* صندوق التحميل داخل التطبيق بدون رسائل تنبيه خارجية */
+        .download-progress-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: right;
+            display: none;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background-color: var(--steam-blue);
+            transition: width 0.1s linear;
+        }
+
+        .progress-info-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--steam-font-color);
+        }
+
+        .screenshots-section {
+            background: rgba(42, 71, 94, 0.5);
+            border: 1px solid rgba(102, 192, 244, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: right;
+        }
+
+        .screenshots-section h3 {
+            font-size: 16px;
+            color: var(--steam-blue);
+            margin-bottom: 12px;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .screenshot-item {
+            width: 100%;
+            height: 120px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid rgba(102, 192, 244, 0.3);
+            background: #171a21;
+        }
+
+        .back-to-store-btn {
+            background: rgba(42, 71, 94, 0.8);
+            border: 1px solid var(--steam-blue);
+            color: var(--text-highlight);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+            align-self: flex-start;
+        }
+
+        .back-to-store-btn:hover {
+            background: rgba(102, 192, 244, 0.2);
+        }
+
+        /* --- واجهة المكتبة --- */
+        #libraryView {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 15px;
+            text-align: right;
+        }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .library-game-card {
+            background: rgba(42, 71, 94, 0.6);
+            border: 1px solid rgba(102, 192, 244, 0.2);
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .library-game-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--steam-blue);
+        }
+
+        .library-game-card h4 {
+            font-size: 14px;
+            color: var(--text-highlight);
+        }
+
+        .play-game-btn {
+            background: linear-gradient(to bottom, #66c0f4 0%, #357ac9 100%);
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* تذييل الصفحة */
+        footer {
+            margin-top: 50px;
+            padding: 20px 50px;
+            background-color: var(--steam-header-bg);
+            border-top: 1px solid #2a475e;
+            font-size: 12px;
+            color: #5c7e99;
+            text-align: center;
+        }
+
+        /* النافذة المنبثقة لاختيار مكان التثبيت */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-box {
+            background: #1b2838;
+            border: 1px solid var(--steam-blue);
+            border-radius: 8px;
+            padding: 25px;
+            width: 400px;
+            text-align: right;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .modal-box h3 {
+            font-size: 16px;
+            color: var(--text-highlight);
+            margin-bottom: 12px;
+        }
+
+        .modal-box p {
+            font-size: 12px;
+            color: var(--steam-font-color);
+            margin-bottom: 15px;
+        }
+
+        .modal-box select {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(102,192,244,0.3);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* إشعار داخلي داخل التطبيق بدل رسايل التنبيه الخارجية */
+        .app-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2a475e;
+            border: 1px solid var(--steam-blue);
+            color: var(--text-highlight);
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 13px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            z-index: 3000;
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .app-notification i {
+            color: var(--steam-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشريط العلوي -->
+    <header>
+        <div class="logo-area" onclick="handleStoreClick(event)">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg" alt="Soko_play Logo">
+            <span>Soko_play</span>
+        </div>
+        <div class="header-links">
+            <a href="#" class="header-link active" id="storeLink" onclick="handleStoreClick(event)">المتجر</a>
+            <a href="#" class="header-link" id="publishLink" onclick="openGameForm(event)">نشر اللعبة</a>
+            <a href="#" class="header-link" id="libraryLink" onclick="openLibrary(event)">المكتبة</a>
+            <a href="#" class="header-link">المجتمع</a>
+            <a href="#" class="header-link">الدعم</a>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div class="search-bar">
+                <input type="text" placeholder="بحث...">
+                <i class="material-icons">search</i>
+            </div>
+            <div class="user-menu">
+                <div class="user-avatar"></div>
+                <div class="user-name">Mohamed</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- القائمة الجانبية -->
+        <sidebar>
+            <div class="sidebar-title">التصنيفات</div>
+            <div class="sidebar-item active" id="sidebarStore" onclick="handleStoreClick(event)">
+                <i class="material-icons">star</i>
+                <span>المميزة</span>
+            </div>
+            <div class="sidebar-item" id="sidebarLibrary" onclick="openLibrary(event)">
+                <i class="material-icons">library_books</i>
+                <span>المكتبة الخاصة</span>
+            </div>
+            <div class="sidebar-title">الأدوات</div>
+            <div class="sidebar-item" onclick="openGameForm(event)">
+                <i class="material-icons">sports_esports</i>
+                <span>نشر اللعبة</span>
+            </div>
+             <div class="sidebar-item">
+                <i class="material-icons">settings</i>
+                <span>الإعدادات</span>
+            </div>
+        </sidebar>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="content">
+            <!-- 1. واجهة المتجر -->
+            <div id="offlineView" style="display: block; width: 100%;">
+                <div style="background: rgba(42, 71, 94, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(102, 192, 244, 0.2); padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);">
+                    <h2 style="font-size: 24px; margin-bottom: 8px; color: var(--text-highlight);">أهلاً بك في متجر Soko_play</h2>
+                    <p style="font-size: 13px; color: var(--steam-font-color); margin-bottom: 15px;">استعرض الألعاب المضافة حديثاً أو انشر لعبتك الخاصة.</p>
+                    <button class="retry-btn" onclick="openGameForm(event)" style="width: auto; margin: 0 auto;">
+                        <i class="material-icons" style="font-size: 18px;">sports_esports</i>
+                        نشر لعبة جديدة
+                    </button>
+                </div>
+
+                <h3 style="font-size: 16px; color: var(--steam-blue); margin-bottom: 15px; border-bottom: 1px solid rgba(102,192,244,0.2); padding-bottom: 5px; text-align: right;">الألعاب المتاحة في المتجر</h3>
+                <div id="storeGamesGrid"></div>
+            </div>
+
+            <!-- 2. صفحة تفاصيل اللعبة -->
+            <div id="gameDetailView">
+                <button class="back-to-store-btn" onclick="handleStoreClick(event)">
+                    <i class="material-icons" style="font-size: 16px;">arrow_forward</i> العودة للمتجر
+                </button>
+                
+                <div class="game-detail-hero" id="detailHero">
+                    <img id="detailBgImg" class="game-detail-hero-bg" src="" alt="Background">
+                    <div class="game-detail-hero-overlay"></div>
+                    <div class="game-detail-content">
+                        <div class="game-detail-left-group">
+                            <div id="detailIconContainer"></div>
+                            <div class="game-detail-info">
+                                <h1 id="detailTitle"></h1>
+                                <p id="detailDesc"></p>
+                                <div class="game-detail-platforms" id="detailPlatforms"></div>
+                            </div>
+                        </div>
+                        <div class="action-buttons-area" id="detailActionArea"></div>
+                    </div>
+                </div>
+
+                <!-- صندوق تقدم التحميل والعداد الزمني -->
+                <div class="download-progress-box" id="downloadProgressBox">
+                    <div class="progress-info-text">
+                        <span id="downloadStatusText">جاري التحميل...</span>
+                        <span id="downloadTimeRemaining">متبقي: 5 ثوانٍ</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBarFill"></div>
+                    </div>
+                    <div class="progress-info-text">
+                        <span id="downloadPercent">0%</span>
+                        <span id="installPathDisplay">مسار التثبيت: C:\SokoGames</span>
+                    </div>
+                </div>
+
+                <div class="screenshots-section">
+                    <h3>لقطات الشاشة (Screenshots)</h3>
+                    <div class="screenshots-grid" id="detailScreenshotsGrid"></div>
+                </div>
+            </div>
+
+            <!-- 3. واجهة المكتبة -->
+            <div id="libraryView">
+                <h3 style="font-size: 18px; color: var(--steam-blue); border-bottom: 1px solid rgba(102,192,244,0.2); padding-bottom: 8px;">مكتبة الألعاب الخاصة بك</h3>
+                <p style="font-size: 12px; color: var(--steam-font-color);">الألعاب التي قمت بتحميلها وتثبيتها تظهر هنا للوصول إليها مباشرة.</p>
+                <div class="library-grid" id="libraryGamesGrid"></div>
+            </div>
+
+            <!-- 4. الخطوة 1: إدخال البيانات واختيار ملفات اللعبة بواسطة المطور بنفسه -->
+            <div class="box-container" id="step1View" style="text-align: right;">
+                <div class="icon-container" style="margin: 0 auto 10px;">
+                    <i class="material-icons main-icon">games</i>
+                </div>
+                <h2 style="text-align: center;">إضافة لعبة جديدة - الخطوة 1</h2>
+                <p style="text-align: center; margin-bottom: 12px;">اختر المنصات وقم باختيار ملف اللعبة المناسب من جهازك لكل منصة.</p>
+                
+                <div class="form-group">
+                    <label>المنصات المدعومة (اختر منصة واحدة أو أكثر)</label>
+                    <div class="platforms-grid">
+                        <label class="platform-checkbox"><input type="checkbox" name="platform" value="mobile" onchange="togglePlatformFiles()"><i class="fa-solid fa-mobile-screen"></i> جوال (Mobile)</label>
+                        <label class="platform-checkbox"><input type="checkbox" name="platform" value="pc" onchange="togglePlatformFiles()"><i class="fa-solid fa-desktop"></i> حاسوب (PC)</label>
+                        <label class="platform-checkbox"><input type="checkbox" name="platform" value="linux" onchange="togglePlatformFiles()"><i class="fa-brands fa-linux"></i> لينكس (Linux)</label>
+                        <label class="platform-checkbox"><input type="checkbox" name="platform" value="macos" onchange="togglePlatformFiles()"><i class="fa-brands fa-apple"></i> ماك (macOS)</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>اسم اللعبة</label>
+                    <input type="text" id="gameName" placeholder="أدخل اسم لعبتك...">
+                </div>
+                <div class="form-group">
+                    <label>وصف اللعبة</label>
+                    <textarea id="gameDesc" rows="2" placeholder="اكتب نبذة مختصرة عن اللعبة..."></textarea>
+                </div>
+
+                <!-- حقل اختيار ملف الجوال -->
+                <div class="platform-file-container" id="containerMobile">
+                    <label>ملف لعبة الجوال (.apk)</label>
+                    <input type="file" id="fileMobile" accept=".apk" style="display: none;" onchange="handleFileMobileSelect(event)">
+                    <button type="button" class="retry-btn" onclick="document.getElementById('fileMobile').click()" style="background: rgba(102,192,244,0.2); color: var(--steam-blue); border: 1px dashed var(--steam-blue); margin-top: 4px;">
+                        <i class="material-icons">folder_open</i> اختر ملف APK من جهازك
+                    </button>
+                    <div class="file-name-display" id="mobileNameDisplay"></div>
+                </div>
+
+                <!-- حقل اختيار ملف PC -->
+                <div class="platform-file-container" id="containerPC">
+                    <label>ملف لعبة الحاسوب PC (.exe)</label>
+                    <input type="file" id="filePC" accept=".exe" style="display: none;" onchange="handleFilePCSelect(event)">
+                    <button type="button" class="retry-btn" onclick="document.getElementById('filePC').click()" style="background: rgba(102,192,244,0.2); color: var(--steam-blue); border: 1px dashed var(--steam-blue); margin-top: 4px;">
+                        <i class="material-icons">folder_open</i> اختر ملف EXE من جهازك
+                    </button>
+                    <div class="file-name-display" id="pcNameDisplay"></div>
+                </div>
+
+                <!-- حقل اختيار ملف Linux -->
+                <div class="platform-file-container" id="containerLinux">
+                    <label>ملف لعبة Linux</label>
+                    <input type="file" id="fileLinux" style="display: none;" onchange="handleFileLinuxSelect(event)">
+                    <button type="button" class="retry-btn" onclick="document.getElementById('fileLinux').click()" style="background: rgba(102,192,244,0.2); color: var(--steam-blue); border: 1px dashed var(--steam-blue); margin-top: 4px;">
+                        <i class="material-icons">folder_open</i> اختر ملف Linux من جهازك
+                    </button>
+                    <div class="file-name-display" id="linuxNameDisplay"></div>
+                </div>
+
+                <!-- حقل اختيار ملف macOS -->
+                <div class="platform-file-container" id="containerMacos">
+                    <label>ملف لعبة macOS</label>
+                    <input type="file" id="fileMac" style="display: none;" onchange="handleFileMacSelect(event)">
+                    <button type="button" class="retry-btn" onclick="document.getElementById('fileMac').click()" style="background: rgba(102,192,244,0.2); color: var(--steam-blue); border: 1px dashed var(--steam-blue); margin-top: 4px;">
+                        <i class="material-icons">folder_open</i> اختر ملف macOS من جهازك
+                    </button>
+                    <div class="file-name-display" id="macNameDisplay"></div>
+                </div>
+
+                <div class="error-msg" id="errorMsg1"></div>
+
+                <button class="retry-btn" onclick="goToStep2()" style="margin-top: 5px;">
+                    التالي (إضافة الأيقونة، الـ Background، و الـ Screenshots)
+                </button>
+            </div>
+
+            <!-- 5. الخطوة 2: أيقونة اللعبة، الخلفية وصور الـ Screenshots -->
+            <div class="box-container" id="step2View" style="text-align: right;">
+                <div class="icon-container" style="margin: 0 auto 10px;">
+                    <i class="material-icons main-icon">photo_library</i>
+                </div>
+                <h2 style="text-align: center;">الخطوة الأخيرة: الصور والأيقونة والـ Screenshots</h2>
+                <p style="text-align: center; margin-bottom: 12px;">اختر الأيقونة، الخلفية، ولقطات الشاشة من جهازك لنشر اللعبة.</p>
+                
+                <div class="form-group">
+                    <label>أيقونة اللعبة</label>
+                    <input type="file" id="iconInput" accept="image/*" style="display: none;" onchange="handleIconSelect(event)">
+                    <button type="button" class="retry-btn" onclick="document.getElementById('iconInput').click()" style="background: rgba(102,192,244,0.2); color: var(--steam-blue); border: 1px dashed var(--steam-blue);">
+                        <i class="material-icons">image</i> اختر أيقونة اللعبة من جهازك
+                    </button>
+                    <div class="file-name-display" id="iconNameDisplay"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>خلفية اللعبة (Background)</label>
+                    <input type="file" id="bgInput" accept="image/*" style="display: none;" onchange="handleBgSelect(event)">
+                    <button type="button" class="retry-btn" onclick="document.getElementById('bgInput').click()" style="background: rgba(102,192,244,0.2); color: var(--steam-blue); border: 1px dashed var(--steam-blue);">
+                        <i class="material-icons">wallpaper</i> اختر صورة الـ Background من جهازك
+                    </button>
+                    <div class="file-name-display" id="bgNameDisplay"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>لقطات الشاشة (Screenshots)</label>
+                    <input type="file" id="imageInput" multiple accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+                    <button type="button" class="retry-btn" onclick="document.getElementById('imageInput').click()" style="background: rgba(102,192,244,0.2); color: var(--steam-blue); border: 1px dashed var(--steam-blue);">
+                        <i class="material-icons">add_photo_alternate</i> اختر صور الـ Screenshots من جهازك
+                    </button>
+                    <div class="file-name-display" id="imagesNameDisplay"></div>
+                </div>
+
+                <div class="error-msg" id="errorMsg2"></div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button class="retry-btn" onclick="goBackToStep1()" style="background: linear-gradient(to bottom, #4e5d6c 0%, #2a3f5a 100%);">
+                        السابق
+                    </button>
+                    <button class="retry-btn" onclick="finalizeSubmission()">
+                        نشر اللعبة الآن في المتجر
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- النافذة المنبثقة لاختيار مكان التثبيت -->
+    <div class="modal-overlay" id="installModal">
+        <div class="modal-box">
+            <h3>اختر مكان التثبيت</h3>
+            <p>حدد القرص أو المجلد الذي تريد تحميل وتثبيت اللعبة عليه:</p>
+            <select id="installPathSelect">
+                <option value="C:\SokoGames\Files">القرص الرئيسي (C:\SokoGames)</option>
+                <option value="D:\Games\Soko_play">القرص الثانوي (D:\Games\Soko_play)</option>
+                <option value="E:\MyLibrary\Soko">القرص الخارجي (E:\MyLibrary\Soko)</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="retry-btn" onclick="closeInstallModal()" style="background: #4e5d6c; width: auto; padding: 6px 15px;">إلغاء</button>
+                <button class="retry-btn" onclick="startActualDownload()" style="width: auto; padding: 6px 15px;">بدء التحميل</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- إشعار داخلي داخل التطبيق -->
+    <div class="app-notification" id="appNotification">
+        <i class="material-icons">check_circle</i>
+        <span id="appNotificationText">تم بنجاح!</span>
+    </div>
+
+    <!-- تذييل الصفحة -->
+    <footer>
+        <p>جميع الحقوق محفوظة © 2026 Soko_play</p>
+    </footer>
+
+    <script>
+        let uploadedFiles = {
+            mobile: { attached: false, name: "" },
+            pc: { attached: false, name: "" },
+            linux: { attached: false, name: "" },
+            macos: { attached: false, name: "" }
+        };
+
+        let uploadedIconAttached = false;
+        let iconDataURL = "";
+        let uploadedBgAttached = false;
+        let bgDataURL = "";
+        let screenshotsArray = [];
+        let activeGameIndexForDownload = null;
+
+        let publishedGames = [
+            {
+                name: "Cyber Soko",
+                desc: "لعبة مغامرات سايبربانك مشوقة وحماسية.",
+                iconText: "CS",
+                platforms: ["pc", "linux"],
+                bgImg: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+                cardImg: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=500&q=80",
+                screenshots: [
+                    "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=500&q=80",
+                    "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=500&q=80"
+                ],
+                installed: false,
+                installPath: ""
+            },
+            {
+                name: "Pixel Quest",
+                desc: "مغامرة كلاسيكية بأسلوب البيكسل آرت الفريد.",
+                iconText: "PQ",
+                platforms: ["mobile", "pc", "macos"],
+                bgImg: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80",
+                cardImg: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=500&q=80",
+                screenshots: [
+                    "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=500&q=80",
+                    "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=500&q=80"
+                ],
+                installed: false,
+                installPath: ""
+            }
+        ];
+
+        window.onload = function() {
+            renderStoreGames();
+        };
+
+        function showAppNotification(message) {
+            const notif = document.getElementById('appNotification');
+            document.getElementById('appNotificationText').innerText = message;
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
+        }
+
+        function getPlatformIconsHTML(platforms) {
+            if (!platforms || platforms.length === 0) return '';
+            let html = '';
+            platforms.forEach(p => {
+                if (p === 'mobile') html += '<i class="fa-solid fa-mobile-screen" title="جوال"></i> ';
+                if (p === 'pc') html += '<i class="fa-solid fa-desktop" title="حاسوب"></i> ';
+                if (p === 'linux') html += '<i class="fa-brands fa-linux" title="لينكس"></i> ';
+                if (p === 'macos') html += '<i class="fa-brands fa-apple" title="ماك"></i> ';
+            });
+            return html;
+        }
+
+        function renderStoreGames() {
+            const grid = document.getElementById('storeGamesGrid');
+            grid.innerHTML = '';
+            
+            publishedGames.forEach((game, index) => {
+                const card = document.createElement('div');
+                card.className = 'game-store-card';
+                card.onclick = () => openGameDetail(index);
+                
+                let iconContent = game.iconData ? `<img src="${game.iconData}" class="game-store-icon" alt="icon">` : `<div class="game-store-icon">${game.iconText || 'GAME'}</div>`;
+                let bgContent = `<img src="${game.cardImg || game.bgImg}" class="game-store-img" alt="game image">`;
+                let platformIcons = getPlatformIconsHTML(game.platforms);
+
+                card.innerHTML = `
+                    ${bgContent}
+                    <div class="game-store-info">
+                        <div class="game-card-left">
+                            ${iconContent}
+                            <div class="game-store-details">
+                                <span class="game-store-title">${game.name}</span>
+                                <div class="game-platforms-icons">${platformIcons}</div>
+                            </div>
+                        </div>
+                        <span class="game-store-price">مجانية</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openGameDetail(index) {
+            activeGameIndexForDownload = index;
+            const game = publishedGames[index];
+            
+            document.getElementById('offlineView').style.display = 'none';
+            document.getElementById('step1View').style.display = 'none';
+            document.getElementById('step2View').style.display = 'none';
+            document.getElementById('libraryView').style.display = 'none';
+            
+            document.getElementById('detailTitle').innerText = game.name;
+            document.getElementById('detailDesc').innerText = game.desc;
+            document.getElementById('detailBgImg').src = game.bgImg;
+
+            const iconContainer = document.getElementById('detailIconContainer');
+            if (game.iconData) {
+                iconContainer.innerHTML = `<img src="${game.iconData}" class="game-detail-icon" alt="icon">`;
+            } else {
+                iconContainer.innerHTML = `<div class="game-detail-icon">${game.iconText || 'GAME'}</div>`;
+            }
+
+            document.getElementById('detailPlatforms').innerHTML = getPlatformIconsHTML(game.platforms);
+
+            const actionArea = document.getElementById('detailActionArea');
+            if (game.installed) {
+                actionArea.innerHTML = `
+                    <button class="download-action-btn installed">
+                        <i class="material-icons">check_circle</i> تم التثبيت
+                    </button>
+                `;
+                document.getElementById('downloadProgressBox').style.display = 'none';
+            } else {
+                actionArea.innerHTML = `
+                    <button class="download-action-btn" onclick="promptInstallLocation()">
+                        <i class="material-icons">download</i> تحميل اللعبة
+                    </button>
+                `;
+            }
+
+            const screenshotsGrid = document.getElementById('detailScreenshotsGrid');
+            screenshotsGrid.innerHTML = '';
+            if (game.screenshots && game.screenshots.length > 0) {
+                game.screenshots.forEach(src => {
+                    const img = document.createElement('img');
+                    img.className = 'screenshot-item';
+                    img.src = src;
+                    screenshotsGrid.appendChild(img);
+                });
+            } else {
+                screenshotsGrid.innerHTML = '<p style="font-size: 12px; color: var(--steam-font-color);">لا توجد لقطات شاشة مرفقة.</p>';
+            }
+
+            document.getElementById('gameDetailView').style.display = 'flex';
+        }
+
+        function promptInstallLocation() {
+            document.getElementById('installModal').style.display = 'flex';
+        }
+
+        function closeInstallModal() {
+            document.getElementById('installModal').style.display = 'none';
+        }
+
+        function startActualDownload() {
+            closeInstallModal();
+            const selectedPath = document.getElementById('installPathSelect').value;
+            const game = publishedGames[activeGameIndexForDownload];
+            game.installPath = selectedPath;
+
+            const progressBox = document.getElementById('downloadProgressBox');
+            progressBox.style.display = 'block';
+            document.getElementById('installPathDisplay').innerText = "مسار التثبيت: " + selectedPath;
+            
+            let progress = 0;
+            let secondsLeft = 5;
+            const fill = document.getElementById('progressBarFill');
+            const percentText = document.getElementById('downloadPercent');
+            const timeText = document.getElementById('downloadTimeRemaining');
+            const statusText = document.getElementById('downloadStatusText');
+
+            statusText.innerText = "جاري التحميل والتثبيت...";
+            
+            const interval = setInterval(() => {
+                progress += 2;
+                if (progress > 100) progress = 100;
+
+                fill.style.width = progress + '%';
+                percentText.innerText = progress + '%';
+
+                secondsLeft = Math.max(0, Math.ceil((100 - progress) / 20));
+                timeText.innerText = `متبقي: ${secondsLeft} ثوانٍ`;
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    statusText.innerText = "اكتمل التحميل والتثبيت بنجاح!";
+                    timeText.innerText = "متبقي: 0 ثوانٍ";
+                    game.installed = true;
+
+                    setTimeout(() => {
+                        openGameDetail(activeGameIndexForDownload);
+                    }, 1000);
+                }
+            }, 100);
+        }
+
+        function openLibrary(event) {
+            if (event) event.preventDefault();
+            document.getElementById('offlineView').style.display = 'none';
+            document.getElementById('gameDetailView').style.display = 'none';
+            document.getElementById('step1View').style.display = 'none';
+            document.getElementById('step2View').style.display = 'none';
+            document.getElementById('libraryView').style.display = 'flex';
+
+            document.getElementById('storeLink').classList.remove('active');
+            document.getElementById('publishLink').classList.remove('active');
+            document.getElementById('libraryLink').classList.add('active');
+            document.getElementById('sidebarStore').classList.remove('active');
+            document.getElementById('sidebarLibrary').classList.add('active');
+
+            renderLibraryGames();
+        }
+
+        function renderLibraryGames() {
+            const grid = document.getElementById('libraryGamesGrid');
+            grid.innerHTML = '';
+
+            const installedGames = publishedGames.filter(g => g.installed);
+
+            if (installedGames.length === 0) {
+                grid.innerHTML = '<p style="font-size: 12px; color: var(--steam-font-color);">لا توجد ألعاب مثبتة حالياً في مكتبتك. تصفح المتجر وحمل ما يعجبك!</p>';
+                return;
+            }
+
+            installedGames.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'library-game-card';
+                
+                let iconContent = game.iconData ? `<img src="${game.iconData}" alt="icon">` : `<div class="game-store-icon" style="width:60px;height:60px;">${game.iconText || 'GAME'}</div>`;
+
+                card.innerHTML = `
+                    ${iconContent}
+                    <h4>${game.name}</h4>
+                    <p style="font-size:10px; color:#5c7e99;">المسار: ${game.installPath}</p>
+                    <button class="play-game-btn" onclick="showAppNotification('جاري تشغيل لعبة ${game.name} بنجاح!')">تشغيل اللعبة</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function handleStoreClick(event) {
+            if (event) event.preventDefault();
+            document.getElementById('step1View').style.display = 'none';
+            document.getElementById('step2View').style.display = 'none';
+            document.getElementById('gameDetailView').style.display = 'none';
+            document.getElementById('libraryView').style.display = 'none';
+            document.getElementById('offlineView').style.display = 'block';
+
+            document.getElementById('storeLink').classList.add('active');
+            document.getElementById('publishLink').classList.remove('active');
+            document.getElementById('libraryLink').classList.remove('active');
+            document.getElementById('sidebarStore').classList.add('active');
+            document.getElementById('sidebarLibrary').classList.remove('active');
+            renderStoreGames();
+        }
+
+        function openGameForm(event) {
+            if (event) event.preventDefault();
+            document.getElementById('gameName').value = '';
+            document.getElementById('gameDesc').value = '';
+            document.getElementById('mobileNameDisplay').innerText = '';
+            document.getElementById('pcNameDisplay').innerText = '';
+            document.getElementById('linuxNameDisplay').innerText = '';
+            document.getElementById('macNameDisplay').innerText = '';
+            document.getElementById('iconNameDisplay').innerText = '';
+            document.getElementById('bgNameDisplay').innerText = '';
+            document.getElementById('imagesNameDisplay').innerText = '';
+            document.getElementById('errorMsg1').style.display = 'none';
+            document.getElementById('errorMsg2').style.display = 'none';
+            
+            const checkboxes = document.querySelectorAll('input[name="platform"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            togglePlatformFiles();
+
+            uploadedFiles = {
+                mobile: { attached: false, name: "" },
+                pc: { attached: false, name: "" },
+                linux: { attached: false, name: "" },
+                macos: { attached: false, name: "" }
+            };
+            uploadedIconAttached = false;
+            iconDataURL = "";
+            uploadedBgAttached = false;
+            bgDataURL = "";
+            screenshotsArray = [];
+
+            document.getElementById('offlineView').style.display = 'none';
+            document.getElementById('gameDetailView').style.display = 'none';
+            document.getElementById('libraryView').style.display = 'none';
+            document.getElementById('step2View').style.display = 'none';
+            document.getElementById('step1View').style.display = 'block';
+
+            document.getElementById('storeLink').classList.remove('active');
+            document.getElementById('publishLink').classList.add('active');
+            document.getElementById('libraryLink').classList.remove('active');
+        }
+
+        function togglePlatformFiles() {
+            const selected = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
+            
+            document.getElementById('containerMobile').classList.toggle('active', selected.includes('mobile'));
+            document.getElementById('containerPC').classList.toggle('active', selected.includes('pc'));
+            document.getElementById('containerLinux').classList.toggle('active', selected.includes('linux'));
+            document.getElementById('containerMacos').classList.toggle('active', selected.includes('macos'));
+        }
+
+        function handleFileMobileSelect(e) { if(e.target.files.length > 0) processFile('mobile', e.target.files[0]); }
+        function handleFilePCSelect(e) { if(e.target.files.length > 0) processFile('pc', e.target.files[0]); }
+        function handleFileLinuxSelect(e) { if(e.target.files.length > 0) processFile('linux', e.target.files[0]); }
+        function handleFileMacSelect(e) { if(e.target.files.length > 0) processFile('macos', e.target.files[0]); }
+
+        function processFile(platform, file) {
+            const fileName = file.name.toLowerCase();
+            
+            if (platform === 'mobile' && !fileName.endsWith('.apk')) {
+                showAppNotification('خطأ: يجب أن يكون ملف الجوال بصيغة .apk فقط!');
+                return;
+            }
+            if (platform === 'pc' && !fileName.endsWith('.exe')) {
+                showAppNotification('خطأ: يجب أن يكون ملف الحاسوب PC بصيغة .exe فقط!');
+                return;
+            }
+
+            uploadedFiles[platform].attached = true;
+            uploadedFiles[platform].name = file.name;
+
+            if (platform === 'mobile') document.getElementById('mobileNameDisplay').innerText = "تم اختيار الملف: " + file.name;
+            if (platform === 'pc') document.getElementById('pcNameDisplay').innerText = "تم اختيار الملف: " + file.name;
+            if (platform === 'linux') document.getElementById('linuxNameDisplay').innerText = "تم اختيار الملف: " + file.name;
+            if (platform === 'macos') document.getElementById('macNameDisplay').innerText = "تم اختيار الملف: " + file.name;
+            
+            document.getElementById('errorMsg1').style.display = 'none';
+        }
+
+        function goToStep2() {
+            const name = document.getElementById('gameName').value.trim();
+            const desc = document.getElementById('gameDesc').value.trim();
+            const errorMsg = document.getElementById('errorMsg1');
+            const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
+
+            if (selectedPlatforms.length === 0) {
+                errorMsg.innerText = "الرجاء تحديد منصة واحدة على الأقل!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            for (let p of selectedPlatforms) {
+                if (!uploadedFiles[p].attached) {
+                    if (p === 'mobile') {
+                        errorMsg.innerText = "الرجاء اختيار ملف الـ APK الخاص بالجوال من جهازك!";
+                    } else if (p === 'pc') {
+                        errorMsg.innerText = "الرجاء اختيار ملف الـ Exe الخاص بالحاسوب (PC) من جهازك!";
+                    } else {
+                        errorMsg.innerText = `الرجاء اختيار ملف لـ منصة ${p} من جهازك!`;
+                    }
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+            }
+
+            if (name === "") {
+                errorMsg.innerText = "الرجاء إدخال اسم اللعبة أولاً!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (desc === "") {
+                errorMsg.innerText = "الرجاء إدخال وصف اللعبة!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+            document.getElementById('step1View').style.display = 'none';
+            document.getElementById('step2View').style.display = 'block';
+        }
+
+        function handleIconSelect(e) {
+            if (e.target.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    iconDataURL = evt.target.result;
+                    uploadedIconAttached = true;
+                    document.getElementById('iconNameDisplay').innerText = "تم اختيار الأيقونة: " + e.target.files[0].name;
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        }
+
+        function handleBgSelect(e) {
+            if (e.target.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    bgDataURL = evt.target.result;
+                    uploadedBgAttached = true;
+                    document.getElementById('bgNameDisplay').innerText = "تم اختيار الخلفية: " + e.target.files[0].name;
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        }
+
+        function handleImageSelect(e) {
+            processScreenshots(e.target.files);
+        }
+
+        function processScreenshots(files) {
+            if (files.length > 0) {
+                screenshotsArray = [];
+                let loadedCount = 0;
+                for (let i = 0; i < files.length; i++) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        screenshotsArray.push(evt.target.result);
+                        loadedCount++;
+                        if (loadedCount === files.length) {
+                            document.getElementById('imagesNameDisplay').innerText = `تم اختيار ${screenshotsArray.length} من لقطات الشاشة بنجاح`;
+                        }
+                    }
+                    reader.readAsDataURL(files[i]);
+                }
+            }
+        }
+
+        function goBackToStep1() {
+            document.getElementById('step2View').style.display = 'none';
+            document.getElementById('step1View').style.display = 'block';
+        }
+
+        function finalizeSubmission() {
+            const errorMsg = document.getElementById('errorMsg2');
+            if (!uploadedIconAttached) {
+                errorMsg.innerText = "الرجاء اختيار أيقونة اللعبة من جهازك أولاً!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (!uploadedBgAttached) {
+                errorMsg.innerText = "الرجاء اختيار خلفية الـ Background من جهازك أولاً!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+            if (screenshotsArray.length === 0) {
+                errorMsg.innerText = "الرجاء اختيار لقطات الشاشة (Screenshots) من جهازك لنشر اللعبة!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+
+            const newGameName = document.getElementById('gameName').value.trim();
+            const newGameDesc = document.getElementById('gameDesc').value.trim();
+            const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
+            
+            publishedGames.unshift({
+                name: newGameName,
+                desc: newGameDesc,
+                platforms: selectedPlatforms,
+                iconText: newGameName.substring(0, 2).toUpperCase(),
+                iconData: iconDataURL,
+                bgImg: bgDataURL,
+                cardImg: bgDataURL,
+                screenshots: screenshotsArray,
+                installed: false,
+                installPath: ""
+            });
+
+            showAppNotification('تم نشر اللعبة بنجاح في المتجر!');
+            handleStoreClick();
+        }
+    </script>
+
+</body>
+</html>
