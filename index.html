@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERROR STUDIO STORE - متجر الألعاب الاحترافي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0074e4">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <style>
         :root {
             --bg-main: #121212;
@@ -156,7 +160,6 @@
             list-style: none;
             gap: 12px;
             align-items: center;
-            flex-wrap: wrap;
         }
 
         nav ul li a, nav ul li button {
@@ -175,24 +178,6 @@
             background-color: var(--primary);
             border-color: var(--primary);
             color: #fff;
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            background: var(--bg-form);
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 6px;
-        }
-
-        .user-badge .logout-link {
-            color: #ef4444;
-            cursor: pointer;
-            font-weight: 700;
         }
 
         .hero {
@@ -364,10 +349,6 @@
 
         .submit-btn:hover {
             background-color: var(--primary-hover);
-        }
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
         }
 
         .my-games-box {
@@ -618,8 +599,6 @@
             background: var(--bg-form); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; color: var(--text-main); font-size: 14px;
         }
         .review-form button { background: var(--primary); color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; }
-        .login-hint { font-size: 13px; color: var(--text-muted); background: var(--bg-form); padding: 12px; border-radius: 8px; text-align: center; }
-        .login-hint a { color: var(--primary); cursor: pointer; font-weight: 700; }
 
         .empty-notice {
             grid-column: 1 / -1; text-align: center; padding: 50px; color: var(--text-muted); background: var(--bg-card); border-radius: 8px; border: 1px dashed var(--border-color);
@@ -627,86 +606,258 @@
 
         footer { text-align: center; padding: 30px; background: var(--bg-card); color: var(--text-muted); margin-top: 60px; border-top: 1px solid var(--border-color); }
 
-        /* نافذة تسجيل الدخول / إنشاء حساب */
-        .auth-modal-overlay {
-            display: none; position: fixed; z-index: 3000;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.75); justify-content: center; align-items: center;
-        }
-        .auth-modal-box {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 30px; width: 90%; max-width: 380px; position: relative;
-        }
-        .auth-close {
-            position: absolute; top: 12px; left: 15px; cursor: pointer; font-size: 24px; color: var(--text-muted);
-        }
-        .auth-title { font-size: 20px; font-weight: 900; margin-bottom: 20px; text-align: center; }
-        .auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .auth-tab { flex: 1; text-align: center; padding: 10px; border-radius: 8px; cursor: pointer; background: var(--bg-form); font-weight: 700; color: var(--text-muted); border: 1px solid var(--border-color); }
-        .auth-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-        .auth-form { display: flex; flex-direction: column; gap: 12px; }
-        .auth-form input {
-            background: var(--bg-form); border: 1px solid var(--border-color); padding: 12px;
-            border-radius: 6px; color: var(--text-main); font-size: 14px;
-        }
-        .auth-error { color: #ef4444; font-size: 13px; text-align: center; min-height: 18px; }
-
-        /* بانر تثبيت التطبيق */
-        .install-banner {
-            display: none; position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg-header); border-top: 1px solid var(--border-color);
-            padding: 14px 25px; align-items: center; justify-content: space-between;
-            z-index: 1500; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); gap: 15px; flex-wrap: wrap;
-        }
-        .install-banner .install-text { font-size: 14px; font-weight: 700; }
-        .install-banner .install-actions { display: flex; align-items: center; gap: 10px; }
-        .install-banner button.install-now-btn {
-            background: var(--primary); color: #fff; border: none; padding: 9px 18px;
-            border-radius: 6px; font-weight: 700; cursor: pointer;
-        }
-        .install-banner button.close-banner {
-            background: transparent; color: var(--text-muted); border: none; font-size: 20px; cursor: pointer; padding: 0 8px;
-        }
-
         @media(max-width: 768px) { .epic-main-layout { grid-template-columns: 1fr; } }
+
+        /* ===== المصادقة (تسجيل الدخول / حساب جديد) ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-box {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--border-color);
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+        .modal-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-close-x {
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+        }
+        .auth-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+        .auth-tabs button {
+            flex: 1;
+            background: var(--bg-form);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .auth-tabs button.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        #authError {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
+        .auth-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        /* ===== حالة المستخدم داخل الهيدر ===== */
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-form);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .logout-link {
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* ===== جرس الإشعارات ===== */
+        .notif-wrap { position: relative; }
+        .notif-bell-btn { position: relative; font-size: 15px; }
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+            border: 2px solid var(--bg-header);
+        }
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 320px;
+            max-height: 420px;
+            overflow-y: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+            z-index: 1400;
+        }
+        .notif-dropdown-header {
+            padding: 14px 16px;
+            font-weight: 700;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notif-item {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+            line-height: 1.5;
+        }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item.unread { background: rgba(0, 116, 228, 0.08); }
+        .notif-item .notif-time { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block; }
+        .notif-empty { padding: 25px 16px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+        /* ===== سجل النشاط العام ===== */
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            background: var(--bg-form);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .activity-icon { font-size: 16px; }
+        .activity-time { font-size: 11px; color: var(--text-muted); display: block; margin-top: 3px; }
+
+        /* ===== بانر تثبيت التطبيق ===== */
+        #installBanner {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--bg-header);
+            border-top: 1px solid var(--border-color);
+            padding: 16px 24px;
+            z-index: 2500;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 -8px 25px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+        }
+        .install-banner-info { display: flex; align-items: center; gap: 12px; }
+        .install-banner-info span.icon { font-size: 30px; }
+        .install-banner-title { font-weight: 700; font-size: 14px; }
+        .install-banner-sub { font-size: 12px; color: var(--text-muted); }
+        .install-banner-actions { display: flex; gap: 10px; }
+        .install-btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .install-btn-secondary {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
 
     <div id="toastContainer"></div>
 
-    <!-- بانر تثبيت التطبيق -->
-    <div id="installBanner" class="install-banner">
-        <div class="install-text">📲 ثبّت تطبيق ERROR STUDIO STORE على جهازك للوصول السريع!</div>
-        <div class="install-actions">
-            <button class="install-now-btn" onclick="installApp()">تثبيت التطبيق</button>
-            <button class="close-banner" onclick="hideInstallBanner()">&times;</button>
+    <!-- نافذة تسجيل الدخول / إنشاء حساب -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-box-header">
+                <h3 id="authModalTitle">تسجيل الدخول</h3>
+                <button class="modal-close-x" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="auth-tabs">
+                <button id="authTabLogin" class="active" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+                <button id="authTabRegister" onclick="switchAuthTab('register')">إنشاء حساب جديد</button>
+            </div>
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="authUsername">اسم المستخدم</label>
+                    <input type="text" id="authUsername" placeholder="اكتب اسم المستخدم..." required>
+                </div>
+                <div class="form-group" style="margin-bottom: 5px;">
+                    <label for="authPassword">كلمة المرور</label>
+                    <input type="password" id="authPassword" placeholder="اكتب كلمة المرور..." required minlength="4">
+                </div>
+                <p id="authError"></p>
+                <button type="submit" class="submit-btn" id="authSubmitBtn" style="margin-top: 18px;">دخول</button>
+            </form>
+            <p class="auth-hint" id="authHint">لسه معملتش حساب؟ اعمل حساب جديد وهيفضل محفوظ عشان تدخل بيه في أي وقت.</p>
         </div>
     </div>
 
-    <!-- نافذة تسجيل الدخول / إنشاء حساب -->
-    <div id="authModalOverlay" class="auth-modal-overlay">
-        <div class="auth-modal-box">
-            <span class="auth-close" onclick="closeAuthModal()">&times;</span>
-            <div class="auth-title">حسابك في ERROR STUDIO STORE</div>
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="loginTabBtn" onclick="switchAuthTab('login')">تسجيل الدخول</div>
-                <div class="auth-tab" id="signupTabBtn" onclick="switchAuthTab('signup')">إنشاء حساب</div>
+    <!-- نافذة النشاط الأخير (نشر / حذف الألعاب) -->
+    <div id="activityModal" class="modal-overlay">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-box-header">
+                <h3>📢 النشاط الأخير في المتجر</h3>
+                <button class="modal-close-x" onclick="closeActivityModal()">&times;</button>
             </div>
+            <div id="activityList"></div>
+        </div>
+    </div>
 
-            <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
-                <input type="text" id="loginUsername" placeholder="اسم المستخدم" required>
-                <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
-                <div class="auth-error" id="loginError"></div>
-                <button type="submit" class="submit-btn">دخول</button>
-            </form>
-
-            <form id="signupForm" class="auth-form" style="display:none;" onsubmit="handleSignup(event)">
-                <input type="text" id="signupUsername" placeholder="اختر اسم مستخدم" required>
-                <input type="password" id="signupPassword" placeholder="اختر كلمة مرور" required>
-                <div class="auth-error" id="signupError"></div>
-                <button type="submit" class="submit-btn">إنشاء الحساب</button>
-            </form>
+    <!-- بانر تثبيت التطبيق -->
+    <div id="installBanner">
+        <div class="install-banner-info">
+            <span class="icon">🎮</span>
+            <div>
+                <div class="install-banner-title">ثبّت تطبيق ERROR STUDIO STORE</div>
+                <div class="install-banner-sub">وصول أسرع وتجربة أفضل من جهازك مباشرة</div>
+            </div>
+        </div>
+        <div class="install-banner-actions">
+            <button class="install-btn-primary" onclick="installApp()">تثبيت الآن</button>
+            <button class="install-btn-secondary" onclick="dismissInstallBanner()">لاحقاً</button>
         </div>
     </div>
 
@@ -721,12 +872,24 @@
         </div>
 
         <nav>
-            <ul id="navList">
+            <ul>
                 <li><button onclick="toggleTheme()" id="themeBtn">☀️ الوضع الفاتح</button></li>
                 <li><a onclick="showStore()">المتجر</a></li>
                 <li><a onclick="showLibrary()">🎮 مكتبتي الخاصة</a></li>
                 <li><a onclick="showDashboard()" style="background-color: var(--primary); color: #fff; border-color: var(--primary);">⚙️ لوحة المطور</a></li>
-                <li id="authNavSlot"></li>
+                <li><a onclick="openActivityModal()">📢 النشاط الأخير</a></li>
+                <li><button onclick="installApp()" id="installNavBtn">📲 تثبيت التطبيق</button></li>
+                <li class="notif-wrap">
+                    <button class="notif-bell-btn" onclick="toggleNotifDropdown(event)">🔔<span id="notifBadge" class="notif-badge">0</span></button>
+                    <div id="notifDropdown" class="notif-dropdown">
+                        <div class="notif-dropdown-header">
+                            <span>الإشعارات</span>
+                            <span id="notifClearBtn" style="cursor:pointer; color: var(--primary); font-size: 12px;" onclick="markAllNotifsRead()">تحديد الكل كمقروء</span>
+                        </div>
+                        <div id="notifList"></div>
+                    </div>
+                </li>
+                <li id="authAreaNav"></li>
             </ul>
         </nav>
     </header>
@@ -758,10 +921,6 @@
                     <h4>الأرباح الافتراضية</h4>
                     <p id="statTotalRevenue">$0</p>
                 </div>
-            </div>
-
-            <div id="dashboardLoginNotice" class="login-hint" style="display:none; margin-bottom:20px;">
-                يجب <a onclick="openAuthModal('login')">تسجيل الدخول</a> أولاً حتى تقدر تنشر ألعابك وتدير مكتبتك كناشر.
             </div>
 
             <form id="gameForm">
@@ -803,7 +962,7 @@
                     <label for="gameDesc">وصف اللعبة:</label>
                     <textarea id="gameDesc" placeholder="اكتب وصفاً مفصلاً للعبة..." required></textarea>
                 </div>
-                <button type="submit" class="submit-btn" id="publishBtn">نشر اللعبة فوراً</button>
+                <button type="submit" class="submit-btn">نشر اللعبة فوراً</button>
             </form>
 
             <div class="my-games-box">
@@ -873,67 +1032,274 @@
         const themeBtn = document.getElementById('themeBtn');
         const sortSelect = document.getElementById('sortSelect');
         const toastContainer = document.getElementById('toastContainer');
-        const authNavSlot = document.getElementById('authNavSlot');
-        const dashboardLoginNotice = document.getElementById('dashboardLoginNotice');
-        const publishBtn = document.getElementById('publishBtn');
+        const authForm = document.getElementById('authForm');
 
-        // ---------- الحالة العامة ----------
-        let games = [];              // بيانات مشتركة بين كل الزوار
-        let library = [];            // مكتبة المستخدم الحالي فقط (خاصة)
-        let currentUser = null;      // { username }
+        let games = JSON.parse(localStorage.getItem('soko_games')) || [];
+        let libraries = JSON.parse(localStorage.getItem('soko_libraries')) || {}; // { username: [gameIndex, ...] }
+        let users = JSON.parse(localStorage.getItem('soko_users')) || []; // [{ username, password, joinedAt }]
+        let notifications = JSON.parse(localStorage.getItem('soko_notifications')) || {}; // { username: [{id,text,time,read}] }
+        let activityLog = JSON.parse(localStorage.getItem('soko_activity')) || []; // [{type,title,owner,time}]
+        let currentUser = localStorage.getItem('soko_currentUser') || null;
         let currentCategory = 'all';
-        let lastSeenDownloads = {};  // لمعرفة هل فيه تحميلات جديدة لألعاب الناشر
+        let authMode = 'login';
+        let pendingAction = null;
+        let deferredInstallPrompt = null;
 
-        // ---------- أدوات مساعدة للتخزين ----------
-        async function storageGet(key, shared) {
-            try {
-                const res = await window.storage.get(key, shared);
-                return res ? JSON.parse(res.value) : null;
-            } catch (e) {
-                return null;
+        function persistUsers() { localStorage.setItem('soko_users', JSON.stringify(users)); }
+        function persistNotifications() { localStorage.setItem('soko_notifications', JSON.stringify(notifications)); }
+        function persistActivity() { localStorage.setItem('soko_activity', JSON.stringify(activityLog)); }
+
+        function timeAgo(timestamp) {
+            const diff = Math.floor((Date.now() - timestamp) / 1000);
+            if (diff < 60) return 'الآن';
+            if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+            if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+            return `منذ ${Math.floor(diff / 86400)} يوم`;
+        }
+
+        /* ===== نظام تسجيل الدخول / إنشاء حساب ===== */
+        function requireAuth(action) {
+            if (currentUser) return true;
+            pendingAction = action;
+            openAuthModal('login');
+            showToast('سجل الدخول أولاً عشان تقدر تكمل');
+            return false;
+        }
+
+        function openAuthModal(mode = 'login') {
+            switchAuthTab(mode);
+            document.getElementById('authModal').style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authError').style.display = 'none';
+            authForm.reset();
+            pendingAction = null;
+        }
+
+        function switchAuthTab(mode) {
+            authMode = mode;
+            document.getElementById('authTabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('authTabRegister').classList.toggle('active', mode === 'register');
+            document.getElementById('authModalTitle').textContent = mode === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
+            document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'دخول' : 'إنشاء الحساب';
+            document.getElementById('authHint').textContent = mode === 'login'
+                ? 'لسه معملتش حساب؟ اعمل حساب جديد وهيفضل محفوظ عشان تدخل بيه في أي وقت من غير ما تسجل تاني.'
+                : 'عندك حساب بالفعل؟ رجّع لتسجيل الدخول بدل عمل حساب جديد.';
+            document.getElementById('authError').style.display = 'none';
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const errorEl = document.getElementById('authError');
+
+            if (authMode === 'register') {
+                if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+                    errorEl.textContent = 'اسم المستخدم ده مستخدم بالفعل، جرب اسم تاني أو سجل الدخول.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+                users.push({ username, password, joinedAt: Date.now() });
+                persistUsers();
+                loginUser(username);
+                showToast(`مرحباً بك ${username}! تم إنشاء حسابك بنجاح 🎉`);
+            } else {
+                const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+                if (!user) {
+                    errorEl.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+                loginUser(user.username);
+                showToast(`أهلاً بعودتك ${user.username}!`);
+            }
+
+            document.getElementById('authModal').style.display = 'none';
+            authForm.reset();
+
+            if (pendingAction) {
+                const action = pendingAction;
+                pendingAction = null;
+                action();
             }
         }
-        async function storageSet(key, value, shared) {
-            try {
-                await window.storage.set(key, JSON.stringify(value), shared);
-            } catch (e) {
-                console.error('storage error', e);
+
+        function loginUser(username) {
+            currentUser = username;
+            localStorage.setItem('soko_currentUser', username);
+            updateAuthUI();
+            renderNotifications();
+            renderMyGames();
+            renderDashboardStats();
+            renderLibrary();
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('soko_currentUser');
+            updateAuthUI();
+            renderNotifications();
+            renderMyGames();
+            renderDashboardStats();
+            renderLibrary();
+            showToast('تم تسجيل الخروج بنجاح');
+            showStore();
+        }
+
+        function updateAuthUI() {
+            const area = document.getElementById('authAreaNav');
+            if (currentUser) {
+                area.innerHTML = `<span class="user-chip">👋 ${currentUser} <span class="logout-link" onclick="logoutUser()">خروج</span></span>`;
+            } else {
+                area.innerHTML = `<button onclick="openAuthModal('login')" style="background-color: var(--primary); color: #fff; border-color: var(--primary);">🔑 تسجيل الدخول</button>`;
             }
         }
 
-        async function loadGames() {
-            games = (await storageGet('games', true)) || [];
-        }
-        async function saveGames() {
-            await storageSet('games', games, true);
-        }
-        async function loadUsers() {
-            return (await storageGet('users', true)) || {};
-        }
-        async function saveUsers(users) {
-            await storageSet('users', users, true);
-        }
-        async function loadLibrary() {
-            library = (await storageGet('library', false)) || [];
-        }
-        async function saveLibrary() {
-            await storageSet('library', library, false);
-        }
-        async function loadSession() {
-            currentUser = await storageGet('session', false);
-        }
-        async function saveSession() {
-            await storageSet('session', currentUser, false);
+        /* ===== نظام الإشعارات الخاصة بكل مستخدم (من الموقع نفسه) ===== */
+        function addNotification(username, text) {
+            if (!username) return;
+            if (!notifications[username]) notifications[username] = [];
+            notifications[username].unshift({ id: Date.now() + Math.random(), text, time: Date.now(), read: false });
+            notifications[username] = notifications[username].slice(0, 40);
+            persistNotifications();
+            if (username === currentUser) renderNotifications();
         }
 
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
+        function renderNotifications() {
+            const list = document.getElementById('notifList');
+            const badge = document.getElementById('notifBadge');
+            const myNotifs = currentUser ? (notifications[currentUser] || []) : [];
+            const unreadCount = myNotifs.filter(n => !n.read).length;
+
+            if (unreadCount > 0) {
+                badge.style.display = 'flex';
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+            } else {
+                badge.style.display = 'none';
+            }
+
+            if (!currentUser) {
+                list.innerHTML = `<div class="notif-empty">سجل الدخول عشان تقدر تشوف إشعاراتك.</div>`;
+                return;
+            }
+            if (myNotifs.length === 0) {
+                list.innerHTML = `<div class="notif-empty">لا توجد إشعارات حتى الآن.</div>`;
+                return;
+            }
+            list.innerHTML = myNotifs.map(n => `
+                <div class="notif-item ${n.read ? '' : 'unread'}">
+                    ${n.text}
+                    <span class="notif-time">${timeAgo(n.time)}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleNotifDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('notifDropdown');
+            const willOpen = dropdown.style.display !== 'block';
+            dropdown.style.display = willOpen ? 'block' : 'none';
+            if (willOpen) renderNotifications();
+        }
+
+        function markAllNotifsRead() {
+            if (!currentUser || !notifications[currentUser]) return;
+            notifications[currentUser].forEach(n => n.read = true);
+            persistNotifications();
+            renderNotifications();
+        }
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('notifDropdown');
+            if (dropdown && dropdown.style.display === 'block' && !e.target.closest('.notif-wrap')) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        /* ===== سجل النشاط العام (نشر / حذف الألعاب) ===== */
+        function logActivity(type, title, owner) {
+            activityLog.unshift({ type, title, owner: owner || 'مستخدم', time: Date.now() });
+            activityLog = activityLog.slice(0, 50);
+            persistActivity();
+        }
+
+        function openActivityModal() {
+            renderActivityList();
+            document.getElementById('activityModal').style.display = 'flex';
+        }
+
+        function closeActivityModal() {
+            document.getElementById('activityModal').style.display = 'none';
+        }
+
+        function renderActivityList() {
+            const list = document.getElementById('activityList');
+            if (activityLog.length === 0) {
+                list.innerHTML = `<div class="empty-notice">لا يوجد نشاط حتى الآن.</div>`;
+                return;
+            }
+            list.innerHTML = activityLog.map(a => {
+                const icon = a.type === 'publish' ? '🆕' : '🗑️';
+                const text = a.type === 'publish'
+                    ? `قام <b>${a.owner}</b> بنشر لعبة جديدة: "${a.title}"`
+                    : `تم حذف اللعبة "${a.title}" بواسطة <b>${a.owner}</b>`;
+                return `
+                    <div class="activity-item">
+                        <span class="activity-icon">${icon}</span>
+                        <div>
+                            ${text}
+                            <span class="activity-time">${timeAgo(a.time)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ===== تثبيت التطبيق (PWA) ===== */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').catch(() => {});
             });
         }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            maybeShowInstallBanner();
+        });
+
+        function maybeShowInstallBanner() {
+            if (sessionStorage.getItem('soko_installBannerDismissed')) return;
+            document.getElementById('installBanner').style.display = 'flex';
+        }
+
+        function installApp() {
+            if (!deferredInstallPrompt) {
+                showToast('التطبيق مثبت بالفعل أو غير متاح للتثبيت من هذا المتصفح حالياً');
+                return;
+            }
+            deferredInstallPrompt.prompt();
+            deferredInstallPrompt.userChoice.then((choice) => {
+                if (choice.outcome === 'accepted') {
+                    showToast('جاري تثبيت التطبيق... 🎉');
+                }
+                deferredInstallPrompt = null;
+                dismissInstallBanner();
+            });
+        }
+
+        function dismissInstallBanner() {
+            document.getElementById('installBanner').style.display = 'none';
+            sessionStorage.setItem('soko_installBannerDismissed', '1');
+        }
+
+        window.addEventListener('appinstalled', () => {
+            showToast('تم تثبيت التطبيق بنجاح! 🎉');
+            dismissInstallBanner();
+        });
 
         function showToast(message) {
             const toast = document.createElement('div');
@@ -943,137 +1309,38 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // ---------- الثيم ----------
         function toggleTheme() {
             const html = document.documentElement;
             if (html.getAttribute('data-theme') === 'dark') {
                 html.setAttribute('data-theme', 'light');
                 themeBtn.textContent = '🌙 الوضع الداكن';
-                storageSet('theme', 'light', false);
+                localStorage.setItem('soko_theme', 'light');
             } else {
                 html.setAttribute('data-theme', 'dark');
                 themeBtn.textContent = '☀️ الوضع الفاتح';
-                storageSet('theme', 'dark', false);
+                localStorage.setItem('soko_theme', 'dark');
             }
         }
 
-        // ---------- تسجيل الدخول / إنشاء حساب ----------
-        function renderAuthNav() {
-            if (currentUser) {
-                authNavSlot.innerHTML = `
-                    <div class="user-badge">
-                        👤 ${currentUser.username}
-                        <span class="logout-link" onclick="logout()">خروج</span>
-                    </div>`;
+        if (localStorage.getItem('soko_theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeBtn.textContent = '🌙 الوضع الداكن';
+        }
+
+        function toggleFileRequirement() {
+            if (gameTypeSelect.value === 'wishlist') {
+                fileGroup.style.display = 'none';
+                gameFileInput.required = false;
+                gameFileInput.value = '';
             } else {
-                authNavSlot.innerHTML = `<a onclick="openAuthModal('login')">تسجيل الدخول</a>`;
+                fileGroup.style.display = 'flex';
+                gameFileInput.required = true;
             }
         }
 
-        function openAuthModal(tab) {
-            document.getElementById('authModalOverlay').style.display = 'flex';
-            switchAuthTab(tab || 'login');
-        }
-        function closeAuthModal() {
-            document.getElementById('authModalOverlay').style.display = 'none';
-            document.getElementById('loginError').textContent = '';
-            document.getElementById('signupError').textContent = '';
-        }
-        function switchAuthTab(tab) {
-            const isLogin = tab === 'login';
-            document.getElementById('loginTabBtn').classList.toggle('active', isLogin);
-            document.getElementById('signupTabBtn').classList.toggle('active', !isLogin);
-            document.getElementById('loginForm').style.display = isLogin ? 'flex' : 'none';
-            document.getElementById('signupForm').style.display = isLogin ? 'none' : 'flex';
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const users = await loadUsers();
-            if (!users[username] || users[username].password !== password) {
-                document.getElementById('loginError').textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
-                return;
-            }
-            currentUser = { username };
-            await saveSession();
-            closeAuthModal();
-            renderAuthNav();
-            showToast(`أهلاً بيك يا ${username}!`);
-            showDashboard();
-        }
-
-        async function handleSignup(event) {
-            event.preventDefault();
-            const username = document.getElementById('signupUsername').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            if (username.length < 3 || password.length < 3) {
-                document.getElementById('signupError').textContent = 'اسم المستخدم وكلمة المرور لازم 3 أحرف على الأقل';
-                return;
-            }
-            const users = await loadUsers();
-            if (users[username]) {
-                document.getElementById('signupError').textContent = 'اسم المستخدم ده محجوز بالفعل';
-                return;
-            }
-            users[username] = { password };
-            await saveUsers(users);
-            currentUser = { username };
-            await saveSession();
-            closeAuthModal();
-            renderAuthNav();
-            showToast(`تم إنشاء حسابك بنجاح يا ${username}! هتفضل مسجل دخول تلقائياً في المرات الجاية.`);
-            showDashboard();
-        }
-
-        async function logout() {
-            currentUser = null;
-            await saveSession();
-            renderAuthNav();
-            showToast('تم تسجيل الخروج');
-            showStore();
-        }
-
-        function requireLogin() {
-            if (!currentUser) {
-                showToast('لازم تسجل الدخول أو تعمل حساب الأول');
-                openAuthModal('login');
-                return false;
-            }
-            return true;
-        }
-
-        // ---------- بانر تثبيت التطبيق ----------
-        let deferredInstallPrompt = null;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredInstallPrompt = e;
-        });
-        function showInstallBanner() {
-            document.getElementById('installBanner').style.display = 'flex';
-        }
-        function hideInstallBanner() {
-            document.getElementById('installBanner').style.display = 'none';
-        }
-        async function installApp() {
-            if (deferredInstallPrompt) {
-                deferredInstallPrompt.prompt();
-                const choice = await deferredInstallPrompt.userChoice;
-                if (choice.outcome === 'accepted') {
-                    showToast('جاري تثبيت التطبيق...');
-                }
-                deferredInstallPrompt = null;
-                hideInstallBanner();
-            } else {
-                showToast('لتثبيت التطبيق: افتح قائمة المتصفح (⋮) واختر "إضافة إلى الشاشة الرئيسية / تثبيت التطبيق"');
-                hideInstallBanner();
-            }
-        }
-
-        // ---------- حفظ وعرض عام ----------
-        async function saveAndRender() {
-            await saveGames();
+        function saveAndRender() {
+            localStorage.setItem('soko_games', JSON.stringify(games));
+            localStorage.setItem('soko_libraries', JSON.stringify(libraries));
             renderStore();
             renderLibrary();
             renderDashboardStats();
@@ -1093,15 +1360,8 @@
             librarySection.style.display = 'none';
             gameDetailsSection.style.display = 'none';
             dashboardSection.style.display = 'block';
-
-            const isLogged = !!currentUser;
-            dashboardLoginNotice.style.display = isLogged ? 'none' : 'block';
-            gameForm.style.display = isLogged ? 'block' : 'none';
-            publishBtn.disabled = !isLogged;
-
             renderDashboardStats();
             renderMyGames();
-            if (isLogged) checkNewDownloadsForPublisher();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1115,31 +1375,11 @@
         }
 
         function renderDashboardStats() {
-            const myGames = currentUser ? games.filter(g => g.publisher === currentUser.username) : [];
+            const myGames = currentUser ? games.filter(g => g.owner === currentUser) : [];
             document.getElementById('statTotalGames').textContent = myGames.length;
             let totalDl = myGames.reduce((acc, g) => acc + (g.downloads || 0), 0);
             document.getElementById('statTotalDownloads').textContent = totalDl;
             document.getElementById('statTotalRevenue').textContent = `$${(totalDl * 1.5).toFixed(2)}`;
-        }
-
-        // إشعار بسيط للناشر لما لعبته تاخد تحميلات جديدة منذ آخر زيارة للوحة التحكم
-        async function checkNewDownloadsForPublisher() {
-            if (!currentUser) return;
-            const seenKey = `seenDownloads:${currentUser.username}`;
-            const seen = (await storageGet(seenKey, false)) || {};
-            let newCount = 0;
-            games.forEach(g => {
-                if (g.publisher === currentUser.username) {
-                    const prev = seen[g.title] || 0;
-                    const now = g.downloads || 0;
-                    if (now > prev) newCount += (now - prev);
-                    seen[g.title] = now;
-                }
-            });
-            if (newCount > 0) {
-                showToast(`🎉 ألعابك حصلت على ${newCount} تحميل جديد منذ آخر زيارة!`);
-            }
-            await storageSet(seenKey, seen, false);
         }
 
         function setCategoryFilter(category, btnElement) {
@@ -1158,6 +1398,7 @@
                 return matchesSearch && matchesCategory;
             });
 
+            // خيارات الفرز
             const sortBy = sortSelect.value;
             if (sortBy === 'popular') {
                 filteredGames.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
@@ -1194,18 +1435,24 @@
 
         function renderLibrary() {
             libraryGrid.innerHTML = '';
-            if (library.length === 0) {
+
+            if (!currentUser) {
+                libraryGrid.innerHTML = `<div class="empty-notice">سجل الدخول أولاً عشان تشوف مكتبتك الخاصة.</div>`;
+                return;
+            }
+
+            const myLibrary = libraries[currentUser] || [];
+            if (myLibrary.length === 0) {
                 libraryGrid.innerHTML = `<div class="empty-notice">مكتبتك فارغة حالياً. قم بتحميل أو إضافة ألعاب لمكتبتك!</div>`;
                 return;
             }
 
-            library.forEach(gameTitle => {
-                const game = games.find(g => g.title === gameTitle);
+            myLibrary.forEach(gameId => {
+                const game = games[gameId];
                 if (game) {
-                    const originalIndex = games.indexOf(game);
                     const card = document.createElement('div');
                     card.className = 'game-icon-card';
-                    card.onclick = () => showGameDetails(originalIndex);
+                    card.onclick = () => showGameDetails(gameId);
                     card.innerHTML = `
                         <img src="${game.squareUrl}" alt="${game.title}" class="game-icon-img">
                         <div class="game-hover-desc">تشغيل من المكتبة</div>
@@ -1222,72 +1469,98 @@
 
         function renderMyGames() {
             myGamesList.innerHTML = '';
-            const myGames = currentUser ? games.filter(g => g.publisher === currentUser.username) : [];
-            if (myGames.length === 0) {
-                myGamesList.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">لم تقم بنشر أي ألعاب.</p>`;
+
+            if (!currentUser) {
+                myGamesList.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">سجل الدخول أولاً عشان تقدر تنشر وتدير ألعابك.</p>`;
                 return;
             }
 
-            myGames.forEach((game) => {
-                const realIndex = games.indexOf(game);
+            const myIndexes = games.reduce((acc, g, i) => { if (g.owner === currentUser) acc.push(i); return acc; }, []);
+
+            if (myIndexes.length === 0) {
+                myGamesList.innerHTML = `<p style="color: var(--text-muted); font-size: 14px;">لم تقم بنشر أي ألعاب بعد.</p>`;
+                return;
+            }
+
+            myIndexes.forEach((index) => {
+                const game = games[index];
                 const item = document.createElement('div');
                 item.className = 'my-game-item';
                 item.innerHTML = `
                     <span style="font-weight: 600;">${game.title} | التحميلات: ${game.downloads || 0}</span>
-                    <button class="delete-game-btn" onclick="deleteGame(${realIndex})">حذف</button>
+                    <button class="delete-game-btn" onclick="deleteGame(${index})">حذف</button>
                 `;
                 myGamesList.appendChild(item);
             });
         }
 
-        async function deleteGame(index) {
+        function deleteGame(index) {
             const game = games[index];
             if (!game) return;
-            if (!currentUser || game.publisher !== currentUser.username) {
-                showToast('مش مسموح لك تحذف لعبة مش بتاعتك');
+
+            if (game.owner && game.owner !== currentUser) {
+                showToast('لا يمكنك حذف لعبة لا تملكها');
                 return;
             }
+
             if (confirm('هل أنت متأكد من حذف هذه اللعبة؟')) {
+                const removedTitle = game.title;
+                const removedOwner = game.owner || currentUser;
+
                 games.splice(index, 1);
-                await saveAndRender();
-                showToast('تم حذف اللعبة بنجاح، ومش هتظهر لباقي الزوار بعد كدة');
+
+                // تحديث فهارس المكتبات الخاصة بكل مستخدم بعد الحذف
+                Object.keys(libraries).forEach(u => {
+                    libraries[u] = libraries[u].filter(i => i !== index).map(i => (i > index ? i - 1 : i));
+                });
+
+                logActivity('delete', removedTitle, removedOwner);
+                saveAndRender();
+                showToast('تم حذف اللعبة بنجاح');
             }
         }
 
-        async function handleDownload(index) {
-            const game = games[index];
-            if (!game.downloads) game.downloads = 0;
-            game.downloads++;
+        function handleDownload(index) {
+            if (!requireAuth(() => handleDownload(index))) return;
 
-            if (!library.includes(game.title)) {
-                library.push(game.title);
-                await saveLibrary();
+            if (!games[index].downloads) games[index].downloads = 0;
+            games[index].downloads++;
+
+            if (!libraries[currentUser]) libraries[currentUser] = [];
+            if (!libraries[currentUser].includes(index)) {
+                libraries[currentUser].push(index);
             }
-            await saveAndRender();
-            showToast(`تمت إضافة "${game.title}" إلى مكتبتك بنجاح!`);
+
+            const owner = games[index].owner;
+            if (owner && owner !== currentUser) {
+                addNotification(owner, `قام "${currentUser}" بتحميل لعبتك "${games[index].title}" 📥 — إجمالي التحميلات الآن: ${games[index].downloads}`);
+            }
+
+            saveAndRender();
+            showToast(`تمت إضافة "${games[index].title}" إلى مكتبتك بنجاح!`);
         }
 
-        async function rateGame(index, stars) {
-            if (!requireLogin()) return;
-            const game = games[index];
-            if (!game.ratings) game.ratings = [];
-            game.ratings.push(stars);
-            await saveAndRender();
+        function rateGame(index, stars) {
+            if (!requireAuth(() => rateGame(index, stars))) return;
+
+            if (!games[index].ratings) games[index].ratings = [];
+            games[index].ratings.push(stars);
+            saveAndRender();
             showGameDetails(index);
             showToast('شكراً لك! تم تسجيل تقييمك.');
         }
 
-        async function addReview(index, event) {
+        function addReview(index, event) {
             event.preventDefault();
-            if (!requireLogin()) return;
-            const text = document.getElementById(`reviewText_${index}`).value;
-            const game = games[index];
+            if (!requireAuth(() => addReview(index, event))) return;
 
-            if (!game.reviews) game.reviews = [];
-            game.reviews.push({ name: currentUser.username, text });
-            await saveAndRender();
+            const text = document.getElementById(`reviewText_${index}`).value;
+
+            if (!games[index].reviews) games[index].reviews = [];
+            games[index].reviews.push({ name: currentUser, text });
+            saveAndRender();
             showGameDetails(index);
-            showToast('تم نشر تعليقك بنجاح، وهيشوفه كل زوار المتجر');
+            showToast('تم نشر تعليقك بنجاح');
         }
 
         function shareGame(title) {
@@ -1314,17 +1587,6 @@
 
         function closeLightbox() {
             document.getElementById('lightboxModal').style.display = 'none';
-        }
-
-        function toggleFileRequirement() {
-            if (gameTypeSelect.value === 'wishlist') {
-                fileGroup.style.display = 'none';
-                gameFileInput.required = false;
-                gameFileInput.value = '';
-            } else {
-                fileGroup.style.display = 'flex';
-                gameFileInput.required = true;
-            }
         }
 
         function showGameDetails(index) {
@@ -1364,15 +1626,6 @@
                 reviewsHtml = `<p style="color: var(--text-muted); font-size: 13px;">كن أول من يعلق على هذه اللعبة!</p>`;
             }
 
-            const reviewFormHtml = currentUser
-                ? `
-                    <form class="review-form" onsubmit="addReview(${index}, event)">
-                        <input type="text" value="${currentUser.username}" disabled>
-                        <textarea id="reviewText_${index}" placeholder="اكتب تعليقك..." required style="height: 60px;"></textarea>
-                        <button type="submit">إرسال التعليق</button>
-                    </form>`
-                : `<div class="login-hint">لازم <a onclick="openAuthModal('login')">تسجل الدخول</a> عشان تقدر تقيّم أو تكتب تعليق.</div>`;
-
             detailsContent.innerHTML = `
                 <div class="epic-hero-banner" style="background-image: url('${game.bgUrl}');"></div>
 
@@ -1392,7 +1645,6 @@
                         
                         <ul class="epic-specs">
                             <li>اللعبة: <span>${game.title}</span></li>
-                            <li>الناشر: <span>${game.publisher || 'غير معروف'}</span></li>
                             <li>التصنيف: <span>${game.typeText}</span></li>
                             <li>التحميلات: <span>${game.downloads || 0}</span></li>
                             <li>التقييم العام: <span>⭐ ${avgRating}</span></li>
@@ -1423,16 +1675,19 @@
                             ${reviewsHtml}
                         </div>
 
-                        ${reviewFormHtml}
+                        <form class="review-form" onsubmit="addReview(${index}, event)">
+                            <textarea id="reviewText_${index}" placeholder="${currentUser ? 'اكتب تعليقك...' : 'سجل الدخول أولاً عشان تقدر تكتب تعليق...'}" required style="height: 60px;"></textarea>
+                            <button type="submit">${currentUser ? 'إرسال التعليق' : 'سجل الدخول للتعليق'}</button>
+                        </form>
                     </div>
                 </div>
             `;
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        gameForm.addEventListener('submit', async function(e) {
+        function publishGame(e) {
             e.preventDefault();
-            if (!requireLogin()) return;
+            if (!requireAuth(() => publishGame(e))) return;
 
             const title = document.getElementById('gameTitle').value;
             const desc = document.getElementById('gameDesc').value;
@@ -1447,35 +1702,29 @@
             const screenshotFiles = document.getElementById('screenshots').files;
             const gameFile = gameFileInput.files[0];
 
-            if (!(squareFile && logoFile && bgFile)) return;
-
-            publishBtn.disabled = true;
-            publishBtn.textContent = 'جاري النشر...';
-
-            try {
-                const [squareUrl, logoUrl, bgUrl] = await Promise.all([
-                    fileToBase64(squareFile),
-                    fileToBase64(logoFile),
-                    fileToBase64(bgFile)
-                ]);
-
+            if (squareFile && logoFile && bgFile) {
+                const squareUrl = URL.createObjectURL(squareFile);
+                const logoUrl = URL.createObjectURL(logoFile);
+                const bgUrl = URL.createObjectURL(bgFile);
+                
                 let fileUrl = '';
                 let fileName = '';
                 if (gameType !== 'wishlist' && gameFile) {
-                    fileUrl = URL.createObjectURL(gameFile); // ملف اللعبة نفسه يفضل محلي (حجمه كبير)
+                    fileUrl = URL.createObjectURL(gameFile);
                     fileName = gameFile.name;
                 }
 
-                const screenshotsUrls = await Promise.all(
-                    Array.from(screenshotFiles).map(f => fileToBase64(f))
-                );
+                let screenshotsUrls = [];
+                for (let i = 0; i < screenshotFiles.length; i++) {
+                    screenshotsUrls.push(URL.createObjectURL(screenshotFiles[i]));
+                }
 
                 const newGame = {
                     title,
                     desc,
                     type: gameType,
                     typeText,
-                    publisher: currentUser.username,
+                    owner: currentUser,
                     squareUrl,
                     logoUrl,
                     bgUrl,
@@ -1488,43 +1737,21 @@
                 };
 
                 games.push(newGame);
-                await saveAndRender();
+                saveAndRender();
                 gameForm.reset();
                 toggleFileRequirement();
                 showStore();
-                showToast('تم نشر اللعبة بنجاح في المتجر! هتظهر دلوقتي لكل زوار الموقع.');
-            } catch (err) {
-                console.error(err);
-                showToast('حصل خطأ أثناء النشر، جرب صور أصغر شوية.');
-            } finally {
-                publishBtn.disabled = false;
-                publishBtn.textContent = 'نشر اللعبة فوراً';
+                showToast('تم نشر اللعبة بنجاح في المتجر!');
+                addNotification(currentUser, `تم نشر لعبتك "${title}" بنجاح في المتجر ✅`);
+                logActivity('publish', title, currentUser);
             }
-        });
-
-        // ---------- بدء التشغيل ----------
-        async function init() {
-            const theme = await storageGet('theme', false);
-            if (theme === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light');
-                themeBtn.textContent = '🌙 الوضع الداكن';
-            }
-
-            await loadSession();
-            await loadGames();
-            await loadLibrary();
-
-            renderAuthNav();
-            renderStore();
-            renderLibrary();
-            renderDashboardStats();
-            renderMyGames();
-
-            // رسالة تثبيت التطبيق تظهر لكل زائر بعد دخوله للموقع بلحظات
-            setTimeout(showInstallBanner, 2500);
         }
 
-        init();
+        gameForm.addEventListener('submit', publishGame);
+
+        updateAuthUI();
+        renderNotifications();
+        renderStore();
     </script>
 
 </body>
