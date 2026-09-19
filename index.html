@@ -86,6 +86,14 @@
         .project-card-info span { font-size: 11px; color: #777; }
         .project-card-actions { display: flex; gap: 6px; }
 
+        .tips-section { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .tips-section h3 { font-size: 14px; color: var(--scratch-orange); margin-bottom: 10px; }
+        .tips-list { display: flex; flex-direction: column; gap: 6px; }
+        .tip-item { background: #181824; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 12px; color: #ccc; display: flex; gap: 8px; align-items: flex-start; }
+        .tip-item span.tip-icon { flex-shrink: 0; }
+
+        .whatsnew-badge { display: inline-block; background: var(--scratch-green); color: #000; font-size: 10px; font-weight: bold; padding: 1px 6px; border-radius: 10px; margin-right: 6px; vertical-align: middle; }
+
         #editor { display: none; width: 100vw; height: 100vh; grid-template-columns: 250px 1fr 300px; grid-template-rows: 55px 1fr; grid-template-areas: "header header header" "hierarchy center inspector"; }
         header { grid-area: header; background: var(--panel-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
         .panel { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 12px; overflow-y: auto; }
@@ -105,7 +113,13 @@
         #center { grid-area: center; display: grid; grid-template-rows: 45% 55%; gap: 10px; background: #0c0c14; padding: 10px; overflow: hidden; }
         
         #game-preview-panel { background: #060609; border: 1px solid var(--border-color); border-radius: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        #game-viewport { position: relative; width: 100%; height: 100%; background: #0f0f18; overflow: hidden; }
+        #game-viewport { position: relative; width: 100%; height: 100%; background: #0f0f18; overflow: hidden; cursor: grab; }
+        #game-viewport.panning { cursor: grabbing; }
+
+        .camera-toolbar { position: absolute; bottom: 8px; left: 8px; z-index: 600; display: flex; gap: 6px; background: rgba(6,6,9,0.75); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .camera-toolbar button { background: transparent; color: var(--text-color); border: 1px solid var(--neon-blue); border-radius: 5px; padding: 3px 8px; font-size: 11px; cursor: pointer; }
+        .camera-toolbar button:hover { background: var(--neon-blue); color: #000; }
+        .camera-hint { position: absolute; top: 8px; left: 8px; z-index: 600; background: rgba(6,6,9,0.7); color: #999; font-size: 10px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); pointer-events: none; }
         
         .animated-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
@@ -205,10 +219,39 @@
         </div>
     </div>
 
+    <div id="engineThemeModal" class="custom-modal-overlay">
+        <div class="custom-modal" style="width: 480px;">
+            <h3 style="color: var(--neon-purple); margin-bottom: 8px;">🎨 تخصيص شكل المحرك</h3>
+            <p style="font-size: 12px; color: #999; margin-bottom: 15px;">اختر لوناً أو ارفع صورة، وهيتحول شكل المحرك كله (الخلفية وألوان الأزرار والعناوين) بناءً عليها</p>
+
+            <div style="background:#181826; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px;">
+                <label style="display:block; margin-bottom:8px; color: var(--neon-blue); font-weight:bold; font-size:13px;">🎨 اختر لون مظهر المحرك</label>
+                <div class="color-picker-row" style="justify-content:center; margin-top:0;">
+                    <input type="color" id="engineAccentColorInput" value="#00f2fe">
+                    <button class="btn" style="font-size:12px; padding:6px 14px; border-color: var(--neon-blue); color: var(--neon-blue);" onclick="applyColorTheme()">تطبيق اللون ✔</button>
+                </div>
+            </div>
+
+            <div style="background:#181826; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:15px;">
+                <label style="display:block; margin-bottom:8px; color: var(--scratch-orange); font-weight:bold; font-size:13px;">🖼️ أو ارفع صورة ليصبح مظهر المحرك</label>
+                <input type="file" id="engineThemeImageInput" accept="image/*" onchange="applyImageTheme(event)">
+                <button class="btn" style="width:100%; font-size:12px; border-color: var(--scratch-orange); color: var(--scratch-orange);" onclick="document.getElementById('engineThemeImageInput').click()">📂 اختيار صورة من الجهاز</button>
+                <p style="font-size:10px; color:#777; margin-top:8px; margin-bottom:0;">هيتم استخراج اللون الأساسي من الصورة تلقائياً وتلوين المحرك بيه</p>
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn" style="border-color:#00ff88; color:#00ff88;" onclick="resetEngineTheme()">↺ استعادة الافتراضي</button>
+                <button class="btn" style="border-color:#ff4444; color:#ff4444;" onclick="closeEngineThemeModal()">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <div id="loading-screen">
         <h2 style="color: var(--scratch-orange);">جاري تحميل المحرك...</h2>
         <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
     </div>
+
+    <button id="engineThemeBtn" class="btn" onclick="openEngineThemeModal()" title="تخصيص شكل المحرك" style="position: fixed; top: 14px; left: 14px; z-index: 7500; border-color: var(--neon-purple); color: var(--neon-purple); padding: 8px 12px; font-size: 16px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">🎨</button>
 
     <div id="launcher">
         <div class="launcher-box">
@@ -218,13 +261,22 @@
                 <input type="text" id="projectName" placeholder="مثال: مغامرة البطل الخارق">
             </div>
             <button class="btn" style="width: 100%; border-color: var(--scratch-orange); color: var(--scratch-orange); margin-bottom: 15px;" onclick="startNewProject()">إنشاء مشروع جديد 🚀</button>
+
+            <div class="saved-projects-section" id="savedProjectsSection" style="display: none;">
+                <h3>📁 مشاريع محفوظة على هذا الجهاز</h3>
+                <div class="projects-list" id="savedProjectsList"></div>
+            </div>
         </div>
         <div class="launcher-box" id="tutorialBox">
-            <h1 style="color: var(--neon-blue); text-shadow: 0 0 15px rgba(0,242,254,0.4); font-size: 18px;">🎬 شرح المحرك</h1>
-            <video id="tutorialVideo" controls style="width:100%; border-radius:8px; display:none; background:#000; margin-bottom: 12px;"></video>
-            <p id="noVideoText" style="color:#777; font-size:12px; text-align:center; margin-bottom: 12px;">لا يوجد فيديو شرح مرفوع بعد</p>
-            <input type="file" id="tutorialVideoInput" accept="video/*" onchange="handleTutorialVideoUpload(event)">
-            <button class="btn" style="width: 100%; border-color: var(--neon-blue); color: var(--neon-blue);" onclick="document.getElementById('tutorialVideoInput').click()">📂 رفع فيديو الشرح</button>
+            <h1 style="color: var(--neon-blue); text-shadow: 0 0 15px rgba(0,242,254,0.4); font-size: 18px;">✨ مميزات المحرك</h1>
+            <div class="tips-list">
+                <div class="tip-item"><span class="tip-icon">🎥</span><span><span class="whatsnew-badge">جديد</span>حرّك كاميرا المشهد في وضع التعديل بالسحب بالماوس أو بأزرار الاتجاهات، عشان تقدر تبني لعبة طويلة براحتك.</span></div>
+                <div class="tip-item"><span class="tip-icon">💾</span><span><span class="whatsnew-badge">جديد</span>عند التصدير هتقدر تختار مكان حفظ ملف اللعبة بنفسك (لو متصفحك بيدعم ذلك)، من غير ما يتزل تلقائي في مجلد التنزيلات.</span></div>
+                <div class="tip-item"><span class="tip-icon">🎬</span><span>ارسم أنيميشن كامل لكل كائن، وحدد إطارات مختلفة للحركة والقفز والوقوف.</span></div>
+                <div class="tip-item"><span class="tip-icon">🔊</span><span>استورد أصواتك الخاصة واربطها بأحداث زي القفز، اللمس، أو الحركة.</span></div>
+                <div class="tip-item"><span class="tip-icon">🎬</span><span>اعمل مشاهد سينمائية (Cut Scenes) تلقائية مع موسيقى عند بداية اللعبة.</span></div>
+                <div class="tip-item"><span class="tip-icon">🌐</span><span>صدّر لعبتك كملف موقع مستقل (HTML) يشتغل في أي متصفح من غير إنترنت.</span></div>
+            </div>
         </div>
     </div>
 
@@ -239,6 +291,7 @@
                 </div>
             </div>
             <div style="display: flex; gap: 8px;">
+                <button class="btn" onclick="saveProjectToDevice()" style="border-color: var(--neon-blue); color: var(--neon-blue);">حفظ المشروع 💾</button>
                 <button class="btn" onclick="backToLauncher()" style="border-color: #aaa; color: #aaa;">القائمة الرئيسية 🏠</button>
                 <button class="btn" onclick="exportGameAsWebsite()" style="border-color: #00ff88; color: #00ff88;">تصدير كموقع 🌐</button>
                 <button class="btn" id="playBtn" onclick="playGame()" style="border-color: var(--scratch-orange); color: var(--scratch-orange);">تشغيل ►</button>
@@ -272,6 +325,14 @@
                     </div>
                     <div id="cutscene-bar-top" class="cutscene-bar"></div>
                     <div id="cutscene-bar-bottom" class="cutscene-bar"></div>
+                    <div class="camera-hint" id="cameraHint">🖱️ اسحب لتحريك الكاميرا (أو الأسهم)</div>
+                    <div class="camera-toolbar">
+                        <button onclick="panCamera(-80,0)" title="يسار">◀</button>
+                        <button onclick="panCamera(80,0)" title="يمين">▶</button>
+                        <button onclick="panCamera(0,-80)" title="فوق">▲</button>
+                        <button onclick="panCamera(0,80)" title="تحت">▼</button>
+                        <button onclick="resetCameraPan()" title="إعادة تعيين الكاميرا">⟳ 0,0</button>
+                    </div>
                 </div>
             </div>
             <div id="code-panel">
@@ -437,23 +498,223 @@
                 setTimeout(() => {
                     splash.style.display = 'none';
                     document.getElementById('launcher').style.display = 'flex';
+                    refreshSavedProjectsList();
                 }, 1000);
             }, 2500);
         };
 
-        function handleTutorialVideoUpload(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const video = document.getElementById('tutorialVideo');
-                video.src = event.target.result;
-                video.style.display = 'block';
-                document.getElementById('noVideoText').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-            e.target.value = '';
+        /* ============ حفظ وتحميل المشروع من جهاز المستخدم ============ */
+        const SAVED_PROJECTS_KEY = 'errorEngineSavedProjectsList';
+
+        function getSavedProjectsIndex() {
+            try {
+                const raw = localStorage.getItem(SAVED_PROJECTS_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch(e) { return []; }
         }
+
+        function setSavedProjectsIndex(list) {
+            try { localStorage.setItem(SAVED_PROJECTS_KEY, JSON.stringify(list)); } catch(e) {}
+        }
+
+        function refreshSavedProjectsList() {
+            const section = document.getElementById('savedProjectsSection');
+            const list = document.getElementById('savedProjectsList');
+            const projects = getSavedProjectsIndex();
+            if(!projects.length) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+            list.innerHTML = '';
+            projects.slice().reverse().forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <div class="project-card-info">
+                        <h4>${(p.name || 'مشروع').replace(/</g,'&lt;')}</h4>
+                        <span>${p.date || ''}</span>
+                    </div>
+                    <div class="project-card-actions">
+                        <button class="btn" style="padding:4px 8px; font-size:11px; border-color: var(--neon-blue); color: var(--neon-blue);" onclick="loadSavedProjectFile()">📂 فتح ملف محفوظ</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function serializeFullProjectState() {
+            let scenesObj = {};
+            scenesMap.forEach((scene, sceneId) => {
+                let objectsObj = {};
+                scene.objects.forEach((obj, objId) => {
+                    objectsObj[objId] = {
+                        name: obj.name,
+                        type: obj.type || 'object',
+                        category: obj.category || null,
+                        textContent: obj.textContent || '',
+                        left: parseFloat(obj.element.style.left) || 0,
+                        top: parseFloat(obj.element.style.top) || 0,
+                        width: parseFloat(obj.element.style.width) || 50,
+                        height: parseFloat(obj.element.style.height) || 50,
+                        canMove: !!obj.canMove,
+                        hasGravity: !!obj.hasGravity,
+                        isSolid: !!obj.isSolid,
+                        animations: obj.animations || {},
+                        sounds: obj.sounds || {},
+                        blocks: obj.blocks || [],
+                        _hueDeg: obj._hueDeg || null,
+                        _hueColor: obj._hueColor || null
+                    };
+                });
+                scenesObj[sceneId] = {
+                    name: scene.name,
+                    backgroundStyle: scene.backgroundStyle || 'bg-grid',
+                    customBgImage: scene.customBgImage || null,
+                    objects: objectsObj
+                };
+            });
+            return {
+                errorEngineProject: true,
+                projectName: currentProjectName || 'مشروعي',
+                currentSceneId: currentSceneId,
+                objectCount: objectCount,
+                scenes: scenesObj
+            };
+        }
+
+        async function saveProjectToDevice() {
+            const data = serializeFullProjectState();
+            const jsonStr = JSON.stringify(data);
+            const safeFileName = (currentProjectName || 'project').replace(/[\\/:*?"<>|]/g, '_').trim() || 'project';
+            const fileName = safeFileName + '.eengine.json';
+
+            let savedOk = false;
+            if(window.showSaveFilePicker) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: fileName,
+                        types: [{ description: 'ملف مشروع Error Engine', accept: { 'application/json': ['.json'] } }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(jsonStr);
+                    await writable.close();
+                    savedOk = true;
+                } catch(err) {
+                    if(err && err.name === 'AbortError') return;
+                    savedOk = false;
+                }
+            }
+
+            if(!savedOk) {
+                const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = fileName;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 2000);
+            }
+
+            const index = getSavedProjectsIndex();
+            index.push({ name: currentProjectName || 'مشروعي', date: new Date().toLocaleString('ar-EG') });
+            setSavedProjectsIndex(index.slice(-10));
+
+            AppModal.alert('تم حفظ المشروع بنجاح! 💾');
+        }
+
+        function loadSavedProjectFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if(!data || !data.errorEngineProject) {
+                            AppModal.alert('هذا الملف مش ملف مشروع صالح لـ Error Engine!');
+                            return;
+                        }
+                        loadProjectFromData(data);
+                    } catch(err) {
+                        AppModal.alert('حصل خطأ أثناء قراءة الملف!');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function loadProjectFromData(data) {
+            currentProjectId = 'proj_' + Date.now();
+            currentProjectName = data.projectName || 'مشروع محمّل';
+            objectCount = data.objectCount || 0;
+            document.getElementById('displayProjectName').innerText = currentProjectName;
+
+            scenesMap.clear();
+            for(let sceneId in data.scenes) {
+                const sData = data.scenes[sceneId];
+                const objects = new Map();
+                for(let objId in sData.objects) {
+                    const od = sData.objects[objId];
+                    const visual = document.createElement('div');
+                    let shapeClass = 'shape-square';
+                    if(od.category === 'ground') shapeClass = 'shape-platform';
+                    else if(od.category === 'enemy') shapeClass = 'shape-enemy';
+                    else if(od.category === 'wall') shapeClass = 'shape-wall';
+                    visual.className = 'game-object ' + shapeClass;
+                    visual.id = objId;
+                    visual.style.left = od.left + 'px';
+                    visual.style.top = od.top + 'px';
+                    visual.style.width = od.width + 'px';
+                    visual.style.height = od.height + 'px';
+
+                    if(od.type === 'text') {
+                        visual.innerText = od.textContent || '';
+                        visual.style.color = '#ffffff';
+                        visual.style.fontSize = '18px';
+                        visual.style.fontWeight = 'bold';
+                        visual.style.textShadow = '0 0 5px rgba(0,242,254,0.8)';
+                        visual.style.width = 'auto'; visual.style.height = 'auto';
+                    } else {
+                        const firstAnim = od.animations ? Object.values(od.animations)[0] : null;
+                        if(firstAnim && firstAnim.length) {
+                            visual.style.backgroundImage = `url(${firstAnim[0]})`;
+                            visual.style.backgroundColor = 'transparent';
+                            visual.style.borderRadius = '0';
+                            visual.style.backgroundSize = 'contain';
+                            visual.style.backgroundRepeat = 'no-repeat';
+                            visual.style.backgroundPosition = 'center';
+                        }
+                    }
+                    if(od._hueDeg !== undefined && od._hueDeg !== null) {
+                        visual.style.filter = `hue-rotate(${od._hueDeg}deg)`;
+                    }
+                    visual.onmousedown = (e) => dragElement(e, visual);
+
+                    objects.set(objId, {
+                        element: visual, name: od.name, type: od.type || 'object', category: od.category || null,
+                        textContent: od.textContent || '', blocks: od.blocks || [],
+                        canMove: !!od.canMove, hasGravity: !!od.hasGravity, isSolid: !!od.isSolid,
+                        vy: 0, animations: od.animations || { 'الحركة الأساسية': [] }, sounds: od.sounds || {},
+                        currentAnimName: 'الحركة الأساسية', currentFrameIdx: 0,
+                        touchCount: 0, startX: undefined, startY: undefined, wasTouchingPlayer: false,
+                        visible: true, followingOwnerId: null, followDelaySeconds: 0,
+                        _hueColor: od._hueColor || null, _hueDeg: od._hueDeg || null
+                    });
+                }
+                scenesMap.set(sceneId, {
+                    name: sData.name, backgroundStyle: sData.backgroundStyle || 'bg-grid',
+                    customBgImage: sData.customBgImage || null, objects: objects
+                });
+            }
+
+            updateSceneDropdown();
+            const startScene = data.currentSceneId && scenesMap.has(data.currentSceneId) ? data.currentSceneId : scenesMap.keys().next().value;
+            switchScene(startScene);
+            transitionToEditor();
+        }
+
+        async function handleTutorialVideoUpload(e) {}
 
         async function startNewProject() {
             const projName = document.getElementById('projectName').value || "لعبة جديدة";
@@ -486,6 +747,7 @@
             if(isPlaying) stopGame();
             document.getElementById('editor').style.display = 'none';
             document.getElementById('launcher').style.display = 'flex';
+            refreshSavedProjectsList();
         }
 
         async function addNewScene() {
@@ -534,6 +796,79 @@
             document.getElementById('changeCustomBgBtn').style.display = (style === 'bg-custom') ? 'block' : 'none';
         }
 
+        /* ============ تحريك كاميرا المشهد في وضع التعديل (Editor Camera Pan) ============ */
+        let editorCamX = 0, editorCamY = 0;
+        let isPanningCamera = false;
+        let panStartClientX = 0, panStartClientY = 0, panStartCamX = 0, panStartCamY = 0;
+
+        function applyEditorCameraTransform() {
+            if(isPlaying) return;
+            const world = document.getElementById('game-world');
+            world.style.transform = `translate(${editorCamX}px, ${editorCamY}px)`;
+        }
+
+        function panCamera(dx, dy) {
+            if(isPlaying) return;
+            editorCamX -= dx;
+            editorCamY -= dy;
+            applyEditorCameraTransform();
+        }
+
+        function resetCameraPan() {
+            editorCamX = 0; editorCamY = 0;
+            applyEditorCameraTransform();
+        }
+
+        function initCameraPanHandlers() {
+            const viewport = document.getElementById('game-viewport');
+            if(!viewport || viewport._panHandlersInit) return;
+            viewport._panHandlersInit = true;
+
+            viewport.addEventListener('mousedown', (e) => {
+                if(isPlaying) return;
+                if(e.target.closest('.game-object') || e.target.closest('.camera-toolbar')) return;
+                isPanningCamera = true;
+                viewport.classList.add('panning');
+                panStartClientX = e.clientX; panStartClientY = e.clientY;
+                panStartCamX = editorCamX; panStartCamY = editorCamY;
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if(!isPanningCamera) return;
+                editorCamX = panStartCamX + (e.clientX - panStartClientX);
+                editorCamY = panStartCamY + (e.clientY - panStartClientY);
+                applyEditorCameraTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if(isPanningCamera) {
+                    isPanningCamera = false;
+                    viewport.classList.remove('panning');
+                }
+            });
+
+            viewport.addEventListener('wheel', (e) => {
+                if(isPlaying) return;
+                e.preventDefault();
+                editorCamX -= e.deltaX;
+                editorCamY -= e.deltaY;
+                applyEditorCameraTransform();
+            }, { passive: false });
+
+            window.addEventListener('keydown', (e) => {
+                if(isPlaying) return;
+                if(document.getElementById('editor').style.display !== 'grid') return;
+                const active = document.activeElement;
+                if(active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA')) return;
+                const step = 40;
+                if(e.key === 'ArrowLeft') { panCamera(-step, 0); e.preventDefault(); }
+                else if(e.key === 'ArrowRight') { panCamera(step, 0); e.preventDefault(); }
+                else if(e.key === 'ArrowUp') { panCamera(0, -step); e.preventDefault(); }
+                else if(e.key === 'ArrowDown') { panCamera(0, step); e.preventDefault(); }
+            });
+        }
+
         function switchScene(id) {
             if(isPlaying) stopGame();
             currentSceneId = id;
@@ -550,7 +885,8 @@
             const overlay = document.getElementById('fade-overlay');
             world.innerHTML = '';
             world.appendChild(overlay);
-            world.style.transform = 'translate(0px, 0px)';
+            resetCameraPan();
+            initCameraPanHandlers();
 
             scene.objects.forEach((objData, objId) => {
                 world.appendChild(objData.element);
@@ -1150,6 +1486,7 @@
         function dragElement(e, elmnt) {
             if(isPlaying) return;
             e.preventDefault();
+            e.stopPropagation();
             selectObject(elmnt.id);
             let pos3 = e.clientX, pos4 = e.clientY;
             
@@ -2922,7 +3259,7 @@ document.getElementById('startBtn').onclick = function() {
 </html>`;
         }
 
-        function exportGameAsWebsite() {
+        async function exportGameAsWebsite() {
             if (isPlaying) stopGame();
             if (!currentSceneId || scenesMap.size === 0) {
                 AppModal.alert("لازم يكون فيه مشروع ومشهد واحد على الأقل قبل التصدير!");
@@ -2930,17 +3267,185 @@ document.getElementById('startBtn').onclick = function() {
             }
             const projectData = serializeProjectForExport();
             const htmlContent = buildStandaloneHTML(projectData);
+            const safeFileName = (currentProjectName || 'game').replace(/[\\/:*?"<>|]/g, '_').trim() || 'game';
+            const fileName = safeFileName + '.html';
+
+            if(window.showSaveFilePicker) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: fileName,
+                        types: [{ description: 'ملف موقع HTML', accept: { 'text/html': ['.html'] } }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(htmlContent);
+                    await writable.close();
+                    AppModal.alert("تم تصدير اللعبة وحفظها في المكان اللي اخترته بنجاح! 🌐\nافتحها في أي متصفح أو ارفعها على أي استضافة لتشتغل كموقع كامل.");
+                    return;
+                } catch(err) {
+                    if(err && err.name === 'AbortError') return;
+                }
+            }
+
             const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            const safeFileName = (currentProjectName || 'game').replace(/[\\/:*?"<>|]/g, '_').trim() || 'game';
-            a.download = safeFileName + '.html';
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 2000);
-            AppModal.alert("تم تصدير اللعبة كملف موقع مستقل (HTML) بنجاح! 🌐\nافتحه في أي متصفح أو ارفعه على أي استضافة ليشتغل كموقع كامل.");
+            AppModal.alert("تم تصدير اللعبة كملف موقع مستقل (HTML) بنجاح! 🌐\nافتحه في أي متصفح أو ارفعه على أي استضافة ليشتغل كموقع كامل.\n(متصفحك الحالي مش بيدعم اختيار مكان الحفظ مباشرة، فاتحفظ في مجلد التنزيلات تلقائياً)");
+        }
+
+        /* ============ تخصيص شكل المحرك (Engine Theme Customizer) ============ */
+        const DEFAULT_ENGINE_THEME = {
+            neonBlue: '#00f2fe', neonPurple: '#4facfe', scratchOrange: '#ff9900', scratchBlue: '#4c97ff',
+            panelBg: '#12121c', bgColor: '#0b0b0f'
+        };
+
+        function openEngineThemeModal() { document.getElementById('engineThemeModal').style.display = 'flex'; }
+        function closeEngineThemeModal() { document.getElementById('engineThemeModal').style.display = 'none'; }
+
+        function hexToRgb(hex) {
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            const num = parseInt(hex, 16);
+            return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+        }
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+        }
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) { h = s = 0; }
+            else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return { h: h * 360, s: s * 100, l: l * 100 };
+        }
+        function hslToRgb(h, s, l) {
+            h /= 360; s /= 100; l /= 100;
+            let r, g, b;
+            if (s === 0) { r = g = b = l; }
+            else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1; if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return { r: r * 255, g: g * 255, b: b * 255 };
+        }
+        function shiftHue(hex, degrees, lightnessAdjust = 0) {
+            const { r, g, b } = hexToRgb(hex);
+            let { h, s, l } = rgbToHsl(r, g, b);
+            h = (h + degrees + 360) % 360;
+            l = Math.max(8, Math.min(92, l + lightnessAdjust));
+            const rgb = hslToRgb(h, s, l);
+            return rgbToHex(rgb.r, rgb.g, rgb.b);
+        }
+
+        function applyEngineAccentPalette(hex) {
+            const root = document.documentElement;
+            const neonBlue = hex;
+            const neonPurple = shiftHue(hex, 25, 6);
+            const scratchOrange = shiftHue(hex, 150, 0);
+            const scratchBlue = shiftHue(hex, -20, -5);
+            root.style.setProperty('--neon-blue', neonBlue);
+            root.style.setProperty('--neon-purple', neonPurple);
+            root.style.setProperty('--scratch-orange', scratchOrange);
+            root.style.setProperty('--scratch-blue', scratchBlue);
+        }
+
+        function setPanelTranslucency(active) {
+            const root = document.documentElement;
+            if (active) {
+                root.style.setProperty('--panel-bg', 'rgba(18,18,28,0.78)');
+            } else {
+                root.style.setProperty('--panel-bg', DEFAULT_ENGINE_THEME.panelBg);
+            }
+        }
+
+        function applyColorTheme() {
+            const hex = document.getElementById('engineAccentColorInput').value;
+            applyEngineAccentPalette(hex);
+            document.body.style.backgroundImage = 'none';
+            document.body.style.backgroundColor = hex;
+            document.body.style.backgroundAttachment = '';
+            setPanelTranslucency(true);
+            closeEngineThemeModal();
+        }
+
+        function getAverageColorFromImage(imgDataUrl, callback) {
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                const sw = 40, sh = 40;
+                c.width = sw; c.height = sh;
+                const cx = c.getContext('2d');
+                cx.drawImage(img, 0, 0, sw, sh);
+                const data = cx.getImageData(0, 0, sw, sh).data;
+                let r = 0, g = 0, b = 0, count = 0;
+                for (let i = 0; i < data.length; i += 4) {
+                    r += data[i]; g += data[i + 1]; b += data[i + 2]; count++;
+                }
+                r = Math.round(r / count); g = Math.round(g / count); b = Math.round(b / count);
+                callback(rgbToHex(r, g, b));
+            };
+            img.src = imgDataUrl;
+        }
+
+        function applyImageTheme(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target.result;
+                document.body.style.backgroundImage = `url(${dataUrl})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundColor = '#000';
+                setPanelTranslucency(true);
+                getAverageColorFromImage(dataUrl, (avgHex) => {
+                    document.getElementById('engineAccentColorInput').value = avgHex;
+                    applyEngineAccentPalette(avgHex);
+                });
+                closeEngineThemeModal();
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        }
+
+        function resetEngineTheme() {
+            const root = document.documentElement;
+            root.style.setProperty('--neon-blue', DEFAULT_ENGINE_THEME.neonBlue);
+            root.style.setProperty('--neon-purple', DEFAULT_ENGINE_THEME.neonPurple);
+            root.style.setProperty('--scratch-orange', DEFAULT_ENGINE_THEME.scratchOrange);
+            root.style.setProperty('--scratch-blue', DEFAULT_ENGINE_THEME.scratchBlue);
+            root.style.setProperty('--panel-bg', DEFAULT_ENGINE_THEME.panelBg);
+            document.body.style.backgroundImage = 'none';
+            document.body.style.backgroundColor = DEFAULT_ENGINE_THEME.bgColor;
+            document.body.style.backgroundAttachment = '';
+            document.getElementById('engineAccentColorInput').value = '#00f2fe';
+            closeEngineThemeModal();
         }
     </script>
 </body>
